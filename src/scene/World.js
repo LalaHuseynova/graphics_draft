@@ -1,48 +1,23 @@
 /*
-    CSCI 2408 Computer Graphics Fall 2026
-    (c)2026 by Team C2 (Group 10): Lala Huseynova, Khavar Jabbarli, Gunel Zeynalzada, Fikrat Rustamli
-    Submitted in partial fulfillment of the requirements of the course.
+CSCI 2408 Computer Graphics Fall 2026
+Team C2: Lala Huseynova, Khavar Jabbarli, Gunel Zeynalzada, Fikrat Rustamli
 
-    World.js: what is in the scene, the ground plane and the list of spheres
-    lying on it (Minimum Requirement 1).
-    Owners: Member 1 (random placement), Member 4 (sphere list, used by
-    CollisionSystem for B2).
+World.js - manages the ground and random sphere placement.
 
-    Placement uses REJECTION SAMPLING:
-      1. pick a random radius and a random spot on the plane,
-      2. if that sphere would intersect (or touch) one already placed, throw
-         the candidate away and try again,
-      3. otherwise keep it.
-    Two spheres intersect when the distance between their centres is smaller
-    than the sum of their radii:  |c1 - c2| < r1 + r2.
-
-    Reference: rejection sampling, e.g. P. Shirley et al., Fundamentals of
-    Computer Graphics, ch. 14 (sampling). Overlap test: standard
-    sphere-sphere test, Angel & Shreiner.
-    Generative AI: Claude (Claude Code), 25 Nov 2026, helped write this file.
-    See README Developer Log, 25 November 2026.
+References:
+- Rejection sampling: Shirley et al., Fundamentals of Computer Graphics.
+- Sphere overlap test: Angel & Shreiner.
 */
 
-/**
- * One sphere lying on the ground. It touches the plane at one point, so its
- * centre is at height y = radius.
- */
+// The centre is at y = radius so the sphere rests on the ground.
 class WorldSphere {
-    /**
-     * @param {vec3} position  centre of the sphere (m), position[1] === radius
-     * @param {number} radius  radius (m)
-     * @param {vec4} color     RGBA colour, each 0..1 (replaced by materials in A1)
-     */
     constructor(position, radius, color) {
         this.position = position;
         this.radius = radius;
         this.color = color;
     }
 
-    /**
-     * Model matrix: scale the unit sphere mesh to this radius, then move it to
-     * this position. MV.js mult(A, B) applies B first, so model = T * S.
-     */
+    // Firstly scale the unit sphere, then move it to its position (T * S)
     modelMatrix() {
         const p = this.position;
         return mult(translate(p[0], p[1], p[2]),
@@ -52,12 +27,9 @@ class WorldSphere {
 
 class World {
     constructor() {
-        /** @type {WorldSphere[]} all spheres on the plane */
         this.spheres = [];
 
-        // Soft colours for the spheres, alternating warm and cool like the
-        // sketch in the assignment brief and our team mock-up.
-        // Lighting and textures (A1, A3) replace them.
+        // Sphere colours based on our team mock-up
         this.palette = [
             vec4(0.86, 0.58, 0.44, 1.0),  // orange
             vec4(0.61, 0.77, 0.86, 1.0),  // sky blue
@@ -65,59 +37,39 @@ class World {
             vec4(0.81, 0.56, 0.65, 1.0)   // pink
         ];
 
-        // Plane colour (soft grass green); replaced by a texture in A3.
-        // The CSS sky gradient in katamari-C2.html ends in this same colour
-        // (rgb 148, 184, 115) so the ground meets the horizon without a gap.
+        // We match the ground colour with the bottom of the sky gradient.
         this.planeColor = vec4(0.58, 0.72, 0.45, 1.0);
     }
 
-    /** Random number in [min, max). */
     static randomRange(min, max) {
         return min + Math.random() * (max - min);
     }
 
-    /**
-     * Fills this.spheres with up to `count` random spheres that do not
-     * intersect each other, using rejection sampling (see top of file).
-     *
-     * @param {number} count     how many spheres we want
-     * @param {number} minR      smallest radius (m)
-     * @param {number} maxR      largest radius (m)
-     * @param {number} areaR     spheres stay fully inside a disc of this radius (m)
-     * @param {number} gap       minimum free space between two surfaces (m)
-     * @param {number} clearR    no sphere within this distance of the origin
-     *                           (the player's start point) (m)
-     * @param {number} maxTries  stop after this many candidates in total
-     */
+    // For placing spheres without overlapping, we use rejection sampling.
     placeSpheres(count, minR, maxR, areaR, gap, clearR, maxTries) {
         this.spheres = [];
         let tries = 0;
 
         while (this.spheres.length < count && tries < maxTries) {
             tries++;
-
-            // 1. Random radius in [minR, maxR].
             const r = World.randomRange(minR, maxR);
 
-            // Random point uniformly inside a disc of radius (areaR - r), so
-            // the whole sphere stays inside areaR. sqrt() makes the points
-            // spread evenly instead of bunching up near the centre.
+            // We subtract r to keep the whole sphere inside the placement area
             const maxDist = areaR - r;
+            // We use sqrt() to avoid clustering near the centre
             const dist = maxDist * Math.sqrt(Math.random());
             const angle = Math.random() * 2 * Math.PI;
             const x = dist * Math.cos(angle);
             const z = dist * Math.sin(angle);
-
-            // Centre at height r: the sphere rests on the plane y = 0.
             const candidate = vec3(x, r, z);
 
-            // 2a. Keep the player's start area empty.
+            // Need to keep the player's starting area empty
             if (Math.hypot(x, z) < clearR + r) continue;
 
-            // 2b. Reject if it would intersect or touch any placed sphere.
+            // If the sphere is too close to another one, try another position
             if (this._overlapsAny(candidate, r, gap)) continue;
 
-            // 3. Accept it.
+            // Cycling through the available colours
             const color = this.palette[this.spheres.length % this.palette.length];
             this.spheres.push(new WorldSphere(candidate, r, color));
         }
@@ -129,23 +81,16 @@ class World {
         return this.spheres;
     }
 
-    /**
-     * True if a sphere at `center` with radius `r` would come closer than
-     * `gap` to any sphere already in the world.
-     */
     _overlapsAny(center, r, gap) {
         for (const other of this.spheres) {
-            // length() and subtract() are from MV.js.
             const d = length(subtract(center, other.position));
+            // Compare the centre distance with both radii and the required gap.
             if (d < r + other.radius + gap) return true;
         }
         return false;
     }
 
-    /**
-     * Self-check used after placement: returns the number of intersecting
-     * pairs (should always be 0). Prints the result in the console.
-     */
+    // countOverlaps checks for overlapping pairs after placement we should get 0.
     countOverlaps() {
         let overlaps = 0;
         for (let i = 0; i < this.spheres.length; i++) {
