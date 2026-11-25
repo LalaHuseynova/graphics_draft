@@ -6,7 +6,7 @@
 
 var canvas;
 var renderer;   // WebGL context, shaders, meshes
-var world;      // ground plane + random spheres
+var world;  // ground plane + random spheres
 
 window.onload = init;
 
@@ -42,9 +42,9 @@ const TEMP_PLAYER_COLOR = vec4(0.24, 0.49, 0.56, 1.0); // teal, like the brief's
 
 
 function temporaryThirdPersonCamera() {
-    const eye = vec3(0, 3, 9);       // 3 m up and 9 m behind the ball (m)
-    const at  = vec3(0, 2.8, -10);   // a point ahead, almost level: wide view
-    const up  = vec3(0, 1, 0);       // Y is up
+    const eye = vec3(0, 3, 9);
+    const at  = vec3(0, 2.8, -10);
+    const up  = vec3(0, 1, 0);
     return {
         view: lookAt(eye, at, up),
         // fovy 45 degrees, canvas aspect, near 0.1 m, far 2.5 * WORLD_R
