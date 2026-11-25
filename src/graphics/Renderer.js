@@ -1,5 +1,5 @@
 /*
-CSCI 2408 – Computer Graphics, Fall 2026
+CSCI 2408 - Computer Graphics, Fall 2026
 Copyright (c) 2026 Team C2 (Group 10)
  
  Team Members:  Lala Huseynova, Khavar Jabbarli, Gunel Zeynalzada, Fikrat Rustamli
