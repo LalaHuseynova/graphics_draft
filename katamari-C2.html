@@ -40,12 +40,7 @@
 <script type="text/javascript" src="common/MV.js"></script>
 <!-- Copyright (c) <2012-2015> Ed Angel and Dave Shreiner -->
 
-<!-- Our code, organised by job in src/:
-       core/      shared settings and helpers (config.js)
-       graphics/  how things are drawn (shaders, meshes, renderer)
-       scene/     what is in the world and how we see it (World)
-     Order matters: config first, then each class before the classes that
-     use it, and the main file last. -->
+
 <script type="text/javascript" src="src/core/config.js"></script>
 <script type="text/javascript" src="src/graphics/ShaderProgram.js"></script>
 <script type="text/javascript" src="src/graphics/Mesh.js"></script>
@@ -55,24 +50,13 @@
 </head>
 
 <body style="margin: 0; overflow: hidden; background-color: #888888;">
-    <!-- The canvas fills the whole browser window (no margin, no scrollbars).
-         Renderer.resize() keeps its pixel size equal to the window size.
-         TEMPORARY sky until the skybox (A4): WebGL clears to transparent, so
-         this CSS gradient behind the 3D scene shows as the sky: blue at the
-         top, warm peach where it meets the FAR EDGE of the ground plane
-         (55 % down with the temporary camera), so the grid lines run right up
-         to the sky with no empty green band. Below that, ground colour, just in
-         case. The skybox (A4) will also meet the ground at the world's edge. -->
     <canvas id="gl-canvas" style="display: block; width: 100vw; height: 100vh;
         background: linear-gradient(to bottom, rgb(111, 160, 200) 0%,
                     rgb(240, 210, 165) 55%, rgb(148, 184, 115) 55%);">
         Sorry ... your browser doesn't support the HTML5 canvas element.
     </canvas>
 
-    <!-- Debug options for M1, floating over the top-left corner of the game:
-         show the polyhedron edges (line mode) and make a new random layout. -->
-    <!-- Sized for easy reading and clicking: 20 px text, 22 px checkbox,
-         a roomy button. -->
+    // Show the polyhedron edges (line mode) and make a new random layout. 
     <div style="position: fixed; top: 14px; left: 14px; padding: 8px 8px;
                 display: flex; align-items: center; gap: 16px;
                 background: rgba(255, 255, 255, 0.85); border-radius: 10px;
