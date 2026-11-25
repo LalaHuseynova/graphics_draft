@@ -1,28 +1,27 @@
 /*
-    CSCI 2408 Computer Graphics Fall 2026
-    (c)2026 by Team C2 (Group 10): Lala Huseynova, Khavar Jabbarli, Gunel Zeynalzada, Fikrat Rustamli
-    Submitted in partial fulfillment of the requirements of the course.
+CSCI 2408 – Computer Graphics, Fall 2026
+Copyright (c) 2026 Team C2 (Group 10)
+ 
+ Team Members:  Lala Huseynova, Khavar Jabbarli, Gunel Zeynalzada, Fikrat Rustamli
 
-    Renderer.js: owns the WebGL context, the shader program and the shared
-    meshes, and draws the World every frame.
-    Owner: Member 1 (rendering & light).
+ Submitted in partial fulfillment of the requirements of the course.
+ 
+ File: Renderer.js
 
-    Drawing one object = send its model matrix and colour to the shader, then
-    draw its mesh. The vertex shader computes
-        gl_Position = projection * view * model * vPosition
-    (Angel & Shreiner, ch. 4-5: model-view-projection pipeline).
-
-    Generative AI: Claude (Claude Code), 25 Nov 2026, helped write this file.
-    See README Developer Log, 25 November 2026.
-*/
+ Description:
+ Manages the WebGL context, shader program, shared meshes, and rendering of the game world using the model-view-projection 
+ transformation pipeline.
+ 
+ Reference:
+ - Angel & Shreiner, Interactive Computer Graphics, Chapters 4–5.
+ */
 
 class Renderer {
-    /** @param {HTMLCanvasElement} canvas */
+     // Set up the renderer
     constructor(canvas) {
         this.canvas = canvas;
 
-        // WebGLUtils.setupWebGL (common/webgl-utils.js) creates the context
-        // and shows a helpful message if the browser has no WebGL.
+        // initialize WebGL
         this.gl = WebGLUtils.setupWebGL(canvas);
         if (!this.gl) {
             alert("WebGL isn't available");
@@ -30,103 +29,91 @@ class Renderer {
         }
         const gl = this.gl;
 
-        this.resize();                          // match the window size, set the viewport
-        // Clear to fully transparent, so the CSS sky gradient behind the
-        // canvas (katamari-C2.html) shows through. TEMPORARY until the skybox (A4).
-        gl.clearColor(0.0, 0.0, 0.0, 0.0);
-        gl.enable(gl.DEPTH_TEST);               // near objects hide far ones
+        this.resize();
 
-        // Push filled triangles slightly back in depth so the wireframe lines
-        // drawn on top of them are not hidden ("z-fighting").
+        // keep the background transparent so the CSS sky is visible
+        gl.clearColor(0.0, 0.0, 0.0, 0.0);
+        gl.enable(gl.DEPTH_TEST);
+
+        // prevent the faces and edges from overlapping at the same depht
         gl.enable(gl.POLYGON_OFFSET_FILL);
         gl.polygonOffset(1.0, 1.0);
 
+        // set up the shader program
         this.shader = new ShaderProgram(gl, "vertex-shader", "fragment-shader",
             ["vPosition", "vNormal", "vTexCoord"],
             ["uModel", "uView", "uProjection", "uColor"]);
         this.shader.use();
 
-        // Shared meshes: ONE sphere polyhedron for every sphere, one plane.
+        // use one shared mesh for all spheres
         this.sphereMesh = Mesh.createSphere(gl, SPHERE_LAT_BANDS, SPHERE_LON_BANDS);
         this.planeMesh  = Mesh.createPlane(gl, PLANE_HALF_SIZE, TILE_SIZE);
 
-        // When true, polyhedron edges are drawn on top of the filled faces so
-        // the facets are visible (no lighting yet to show them).
+        // show the edges of polyhedron
         this.showEdges = true;
     }
 
-    /**
-     * Makes the canvas drawing buffer as big as the canvas on screen (the
-     * whole window), so the picture is sharp and not stretched, and sets the
-     * WebGL viewport to match. Called at start-up and at the start of every
-     * frame, BEFORE the camera builds its projection (the projection's aspect
-     * ratio is canvas.width / canvas.height). It only
-     * does work when the size changed (window resized or browser zoomed).
-     *
-     * devicePixelRatio is how many real screen pixels make one CSS pixel
-     * (2 on most Retina screens). It is capped at 2 so 4K screens do not
-     * render far more pixels than needed.
-     */
+    // adjust the canvas size to match the screen
     resize() {
+        // keep the pixel ratio at most 2 to reduce rendering costs
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        // Calculate the canvas width and height in pixels
         const width  = Math.floor(this.canvas.clientWidth  * dpr);
         const height = Math.floor(this.canvas.clientHeight * dpr);
+
+        // update the canvas size only if it has changed
         if (this.canvas.width !== width || this.canvas.height !== height) {
             this.canvas.width = width;
             this.canvas.height = height;
         }
-        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+
+        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);    // set the viewport to match the canvas size
     }
 
-    /** Clears colour and depth before a new frame. */
+    // Clear previous frame
     clear() {
         const gl = this.gl;
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 
-    /**
-     * Sets the camera matrices for the whole frame.
-     * flatten() already transposes MV.js matrices, so we pass false.
-     */
+    // Set the camera matrices
     setCamera(view, projection) {
         const gl = this.gl;
-        gl.uniformMatrix4fv(this.shader.uniform.uView, false, flatten(view));
-        gl.uniformMatrix4fv(this.shader.uniform.uProjection, false, flatten(projection));
+
+        // flatten() handles the matrix transpose, so we use false
+
+        gl.uniformMatrix4fv(this.shader.uniform.uView, false, flatten(view)); // Send the view matrix to the shader
+        gl.uniformMatrix4fv(this.shader.uniform.uProjection, false, flatten(projection));   // Send the projection matrix to the shader
     }
 
-    /**
-     * Draws one mesh with a model matrix and a colour; if edges are on, draws
-     * its edges in a darker shade of the same colour.
-     */
+    // Draw the mesh with its transformation and color
     drawMesh(mesh, model, color) {
         const gl = this.gl;
-        gl.uniformMatrix4fv(this.shader.uniform.uModel, false, flatten(model));
+        gl.uniformMatrix4fv(this.shader.uniform.uModel, false, flatten(model)); // send the model matrix to the shader
 
-        gl.uniform4fv(this.shader.uniform.uColor, flatten(color));
+        gl.uniform4fv(this.shader.uniform.uColor, flatten(color));     // set the color of the mesh
         mesh.draw(this.shader);
 
+         // check if edge drawing is enabled
         if (this.showEdges) {
             const edgeColor = vec4(color[0] * 0.55, color[1] * 0.55, color[2] * 0.55, 1.0);
-            gl.uniform4fv(this.shader.uniform.uColor, flatten(edgeColor));
-            mesh.drawEdges(this.shader);
+            gl.uniform4fv(this.shader.uniform.uColor, flatten(edgeColor));      // set the new color in the shader
+            mesh.drawEdges(this.shader);        
         }
     }
 
-    /**
-     * Draws the whole world: the ground plane, then every sphere.
-     * @param {World} world
-     * @param {mat4} view        camera view matrix (lookAt)
-     * @param {mat4} projection  perspective projection matrix
-     */
+    // render the ground and all spheres in the world
     render(world, view, projection) {
         this.clear();
-        this.setCamera(view, projection);
+        this.setCamera(view, projection);   // set the camera view and projection matrices
 
-        // The plane is built at its final place, so its model matrix is identity.
+        // draw the ground using an identity matrix
         this.drawMesh(this.planeMesh, mat4(), world.planeColor);
 
+        // Loop through each sphere in the scene
         for (const sphere of world.spheres) {
-            this.drawMesh(this.sphereMesh, sphere.modelMatrix(), sphere.color);
+            this.drawMesh(this.sphereMesh, sphere.modelMatrix(), sphere.color);   // Render each sphere using its transformation and color
         }
     }
 }
