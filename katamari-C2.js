@@ -38,7 +38,7 @@ function generateWorld() {
 }
 
 
-const TEMP_PLAYER_R = 1;                              // radius (m)
+const TEMP_PLAYER_R = 1;  // radius (m)
 const TEMP_PLAYER_COLOR = vec4(0.24, 0.49, 0.56, 1.0); // teal, like the brief's sketch
 
 

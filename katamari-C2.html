@@ -14,9 +14,9 @@
     // also in the mesh but are not used until lighting (A1) and textures (A3).
     attribute vec4 vPosition;
 
-    uniform mat4 uModel;       // object space -> world space (place + size)
-    uniform mat4 uView;        // world space  -> camera space (lookAt)
-    uniform mat4 uProjection;  // camera space -> clip space (perspective)
+    uniform mat4 uModel;  // object space - world space (place + size)
+    uniform mat4 uView;   // world space  - camera space (lookAt)
+    uniform mat4 uProjection;  // camera space - clip space (perspective)
 
     void main() {
         gl_Position = uProjection * uView * uModel * vPosition;
@@ -24,7 +24,7 @@
 </script>
 
 <script id="fragment-shader" type="x-shader/x-fragment">
-    // Set how many bits used for float values. Will not work otherwise.
+    // Set the required precision for floating-point values
     precision mediump float;
 
     uniform vec4 uColor;  // colour of the object being drawn (RGBA, 0..1)
