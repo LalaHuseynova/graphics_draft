@@ -5,8 +5,8 @@
 */
 
 var canvas;
-var renderer;   // Renderer: WebGL context, shaders, meshes
-var world;      // World: ground plane + random spheres
+var renderer;   // WebGL context, shaders, meshes
+var world;      // ground plane + random spheres
 
 window.onload = init;
 
@@ -25,11 +25,10 @@ function init() {
     };
     document.getElementById("regenerate").onclick = generateWorld;
 
-    // requestAnimFrame (common/webgl-utils.js) calls render about 60x per second.
     requestAnimFrame(render);
 }
 
-// Places a new random set of non-intersecting spheres and checks the result. 
+// Generate random spheres and check that they do not overlap
 function generateWorld() {
     world.placeSpheres(SPHERE_COUNT, SPHERE_MIN_R, SPHERE_MAX_R, PLACEMENT_R,
                        SPHERE_GAP, SPAWN_CLEAR_R, MAX_PLACEMENT_TRIES);
@@ -55,12 +54,12 @@ function temporaryThirdPersonCamera() {
 
 // Draw the world and the placeholder ball from the camera. 
 function render() {
-    // Follow the window size first, the projection below uses its aspect ratio.
+    // Upate the canvas size first to get the correct aspect ratio for projection
     renderer.resize();
     const cam = temporaryThirdPersonCamera();
     renderer.render(world, cam.view, cam.projection);
 
-    // Placeholder katamari, resting on the ground: centre at y = radius.
+    // Place the temporary katamari on the ground at y = radius
     const r = TEMP_PLAYER_R;
     renderer.drawMesh(renderer.sphereMesh,
                       mult(translate(0, r, 0), scalem(r, r, r)), TEMP_PLAYER_COLOR);
