@@ -43,7 +43,7 @@ class Mesh {
         return buffer;
     }
 
-    // Connect the mesh data to the shader
+    // connect the mesh data to the shader
     _bindAttributes(shader) {
         const gl = this.gl;
 
