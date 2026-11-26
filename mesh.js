@@ -2,12 +2,6 @@
     CSCI 2408 Computer Graphics Fall 2026
     (c)2026 by Lala Huseynova, Khavar Jabbarli, Gunel Zeynalzada, Fikrat Rustamli (team C2)
     Submitted in partial fulfillment of the requirements of the course.
-
-    Class layout (fields at the top, constructor, private #methods) follows class Object
-    in the gl-rotation lab code sample for CSCI 2408 by Araz Yusubov.
-    Buffer calls follow init() of the webgl and gl-texture labs.
-    The sphere is built with the usual latitude/longitude (UV sphere) method:
-    points on a sphere written with two angles, theta from the top and phi around the y-axis.
 */
 
 "use strict";
@@ -43,20 +37,20 @@ class Mesh {
             for (var j = 0; j < slices; j++) {
                 // The small patch between latitudes i, i+1 and longitudes j, j+1 is a quad,
                 // and we split it into two triangles
-                this.#addSpherePoint(i,     j,     stacks, slices);
-                this.#addSpherePoint(i + 1, j,     stacks, slices);
+                this.#addSpherePoint(i,j,stacks, slices);
+                this.#addSpherePoint(i + 1, j, stacks, slices);
                 this.#addSpherePoint(i + 1, j + 1, stacks, slices);
-                this.#addSpherePoint(i,     j,     stacks, slices);
+                this.#addSpherePoint(i, j, stacks, slices);
                 this.#addSpherePoint(i + 1, j + 1, stacks, slices);
-                this.#addSpherePoint(i,     j + 1, stacks, slices);
+                this.#addSpherePoint(i, j + 1, stacks, slices);
             }
         }
     }
 
     // Add one point of the sphere grid: row i (0..stacks), column j (0..slices)
     #addSpherePoint(i, j, stacks, slices) {
-        var theta = i * Math.PI / stacks;         // radians, 0 at the top (north pole), PI at the bottom
-        var phi = j * 2.0 * Math.PI / slices;     // radians, angle around the y-axis, 0 to 2 PI
+        var theta = i * Math.PI / stacks;    // radians, 0 at the top (north pole), PI at the bottom
+        var phi = j * 2.0 * Math.PI / slices;    // radians, angle around the y-axis, 0 to 2 PI
         var x = Math.sin(theta) * Math.cos(phi);
         var y = Math.cos(theta);
         var z = Math.sin(theta) * Math.sin(phi);
@@ -72,8 +66,8 @@ class Mesh {
     makePlane(halfSize, tiles) {
         var corners = [
             vec4(-halfSize, 0.0, -halfSize, 1.0),
-            vec4(-halfSize, 0.0,  halfSize, 1.0),
-            vec4( halfSize, 0.0,  halfSize, 1.0),
+            vec4(-halfSize, 0.0, halfSize, 1.0),
+            vec4( halfSize, 0.0, halfSize, 1.0),
             vec4( halfSize, 0.0, -halfSize, 1.0)
         ];
         var uvs = [vec2(0.0, 0.0), vec2(0.0, tiles), vec2(tiles, tiles), vec2(tiles, 0.0)];

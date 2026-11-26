@@ -2,9 +2,6 @@
     CSCI 2408 Computer Graphics Fall 2026
     (c)2026 by Lala Huseynova, Khavar Jabbarli, Gunel Zeynalzada, Fikrat Rustamli (team C2)
     Submitted in partial fulfillment of the requirements of the course.
-
-    Based on the code samples for CSCI 2408 by Araz Yusubov (labs: webgl, gl-rotation, gl-texture)
-    and on the common/ library by Ed Angel and Dave Shreiner (MV.js, initShaders.js, webgl-utils.js).
 */
 
 "use strict";
