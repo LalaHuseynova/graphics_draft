@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katamari Technical Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Same visual language as our first plan: teal header, Fredoka headings, Nunito Sans text, JetBrains Mono code.
+   The member colours, board and day-by-day schedule are gone; phases are now the backbone. */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0d1619);--ink:light-dark(#13212a,#e6eff1);--mute:light-dark(#5b6b74,#97a9b0);
+--line:light-dark(#dfe7ea,#24343a);--panel:light-dark(#f4f8f9,#132126);--teal:#0f5c6b;--teal2:light-dark(#1a7f92,#4fb3c6);
+--coral:light-dark(#c4551f,#f08a55);--warn:light-dark(#b3261e,#ff8a80);--good:light-dark(#1d7a44,#6fd39b);
+--min:light-dark(#1a7f92,#4fb3c6);--reqa:light-dark(#3d5fb8,#8aa6ff);--reqb:light-dark(#a23667,#e47aa9);--doc:light-dark(#4b5961,#a8b8bf)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Nunito Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:Fredoka,"Nunito Sans",sans-serif;font-weight:600;line-height:1.15;letter-spacing:-.01em;margin:0}
+h1{font-size:clamp(30px,4.6vw,46px);text-wrap:balance}
+h2{font-size:clamp(26px,3.2vw,32px);margin-bottom:8px}
+h3{font-size:20px;margin:22px 0 8px}
+p{margin:0 0 12px;max-width:78ch}
+a{color:var(--teal2)}
+ul,ol{padding-left:22px;margin:4px 0 10px}
+li{margin-bottom:4px}
+code{font:14px/1.4 "JetBrains Mono",monospace;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:0 4px;overflow-wrap:anywhere}
+pre{font:13px/1.55 "JetBrains Mono",monospace;background:light-dark(#0f1f24,#081013);color:#dcecef;border-radius:10px;padding:14px 16px;margin:0;overflow-x:auto;white-space:pre;tab-size:4}
+.band{padding-block:clamp(26px,4vw,52px);padding-inline:max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.top{background:var(--teal);color:#fff}
+.top code{background:rgba(0,0,0,.2);border-color:rgba(255,255,255,.25);color:#fff}
+.toprow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px;align-items:end}
+.sub{color:#cfe6eb;margin-top:10px;font-size:17px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:rgba(255,255,255,.1);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font:600 clamp(22px,3vw,32px)/1 Fredoka,sans-serif;white-space:nowrap}
+.stat span{font-size:13.5px;color:#d5eaee}
+.bar{height:10px;border-radius:6px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:#ffd07a;border-radius:6px;transition:width .4s}
+.teamrow{display:flex;flex-wrap:wrap;gap:16px;align-items:end;margin-top:20px}
+.teamrow label{font-size:13.5px;color:#d5eaee;display:block;max-width:260px}
+.teamrow input{width:100%;font:16px "Nunito Sans",sans-serif;padding:9px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.18);color:#fff;margin-top:3px}
+.teamrow input:focus-visible{outline:3px solid #ffd07a;outline-offset:1px}
+.teamrow p{color:#cfe6eb;font-size:14px;margin:0;max-width:60ch}
+.nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:6px max(5vw,16px)}
+.nav a{flex:none;text-decoration:none;color:var(--ink);font-weight:600;font-size:15px;padding:10px 12px;border-radius:8px}
+.nav a:hover{background:var(--panel)}
+.note{font-size:14px;color:var(--mute);margin-top:8px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:8px 0 14px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-size:13.5px;color:var(--mute);font-weight:800;background:var(--panel)}
+tr:last-child td{border-bottom:0}
+.pill{display:inline-block;font-size:12.5px;font-weight:800;color:#fff;background:var(--c,var(--teal2));border-radius:20px;padding:1px 9px;white-space:nowrap;margin:0 2px 2px 0}
+.p-min{--c:var(--min)}.p-a{--c:var(--reqa)}.p-b{--c:var(--reqb)}.p-doc{--c:var(--doc)}.p-opt{--c:var(--coral)}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0 4px;padding:0;list-style:none}
+.flow li{margin:0;border:1px solid var(--line);border-left:5px solid var(--c);border-radius:8px;padding:6px 10px;font-size:14px;background:var(--bg)}
+.flow li a{color:var(--ink);text-decoration:none;font-weight:700}
+.flow li.ms{border-left-color:var(--coral);font-weight:800;color:var(--coral)}
+.phase{border:1px solid var(--line);border-top:6px solid var(--c);border-radius:14px;padding:16px 18px 10px;margin:22px 0;background:var(--bg)}
+.phead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.phead h3{margin:0;font-size:23px}
+.phead h3 .n{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--c);color:#fff;font-size:17px;margin-right:8px;vertical-align:2px}
+.pdone{display:flex;gap:8px;align-items:center;font-weight:800;font-size:14.5px;cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:6px 12px;min-height:40px}
+.pdone input{width:20px;height:20px;accent-color:var(--good)}
+.phase.done{opacity:.8}
+.phase.done .phead h3{text-decoration:line-through;text-decoration-thickness:2px}
+.f{display:grid;grid-template-columns:150px minmax(0,1fr);gap:0;margin:0}
+.f dt{font-weight:800;font-size:13.5px;color:var(--mute);padding:10px 10px 10px 0;border-top:1px solid var(--line);text-transform:uppercase;letter-spacing:.03em}
+.f dd{margin:0;padding:9px 0;border-top:1px solid var(--line)}
+.f dd p:last-child,.f dd ul:last-child,.f dd ol:last-child{margin-bottom:0}
+.f dt.avoid{color:var(--warn)}.f dt.test{color:var(--good)}
+.labref{border-left:4px solid var(--teal2);padding-left:10px}
+.nolab{display:inline-block;font-size:12.5px;font-weight:800;color:var(--coral);border:1px solid var(--coral);border-radius:8px;padding:0 7px;margin-right:4px}
+.cmd{position:relative;margin:8px 0 12px}
+.copy{position:absolute;top:8px;right:8px;font:600 13px "Nunito Sans",sans-serif;background:#25414a;color:#fff;border:0;border-radius:6px;padding:6px 10px;cursor:pointer;min-height:32px}
+.copy:focus-visible{outline:2px solid #ffd07a}
+.checks label{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.checks label:last-child{border-bottom:0}
+.checks input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--teal2)}
+.expect{background:light-dark(#eaf6ef,#12251b);border:1px solid light-dark(#bfe3cd,#24503a);border-radius:10px;padding:10px 12px}
+.ms-band{display:flex;gap:10px;align-items:center;border:2px dashed var(--coral);border-radius:12px;padding:12px 16px;margin:22px 0;color:var(--coral);font-weight:800}
+.ms-band span{color:var(--ink);font-weight:600}
+details{border:1px solid var(--line);border-radius:10px;padding:4px 14px;margin:10px 0;background:var(--bg)}
+summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:center}
+.good{color:var(--good);font-weight:800}.bad{color:var(--warn);font-weight:800}
+.tree{font:13.5px/1.6 "JetBrains Mono",monospace;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;white-space:pre;overflow-x:auto;color:var(--ink)}
+.tree b{color:var(--teal2)}.tree i{color:var(--mute);font-style:normal}
+.fix{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fix div{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--bg)}
+.fix b{display:block;margin-bottom:2px}
+.tag{font-size:12.5px;font-weight:800;color:var(--warn);text-transform:uppercase;letter-spacing:.03em}
+.tag.add{color:var(--good)}.tag.keep{color:var(--teal2)}
+.q{border-left:4px solid var(--coral);padding:4px 0 4px 12px;margin:12px 0}
+.q b{display:block}
+.btn{font:600 15px "Nunito Sans",sans-serif;min-height:44px;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--panel)}
+.btn:focus-visible{outline:3px solid var(--coral);outline-offset:1px}
+@media(max-width:900px){.toprow,.two,.fix{grid-template-columns:1fr}}
+@media(max-width:640px){.f{grid-template-columns:1fr}.f dt{padding-bottom:0}.f dd{border-top:0;padding-top:2px}
+ table{font-size:13.5px}th,td{padding:7px 6px}.stack thead{display:none}.stack tr{display:grid;padding-block:8px;border-bottom:1px solid var(--line)}.stack td{border:0;padding:3px 6px}.stack td::before{content:attr(data-l);display:block;font-size:12.5px;font-weight:800;color:var(--mute)}.stats{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="band top">
+ <div class="wrap">
+  <div class="toprow">
+   <div>
+    <h1>Katamari with WebGL: technical implementation plan</h1>
+    <p class="sub">CSCI 2408 · Fall 2026 · team repository <code>…-team-project-group-10</code>. Seventeen phases from the instructor's starter files to the submitted game, each one built the way our labs taught and each one testable before the next starts.</p>
+   </div>
+   <div class="stats">
+    <div class="stat"><b id="sPct">0%</b><span>phases done</span><div class="bar"><i id="sBar" style="width:0"></i></div></div>
+    <div class="stat"><b id="sReq">0/12</b><span>requirements working</span></div>
+    <div class="stat"><b id="sNext">0</b><span id="sNextL">next phase</span></div>
+   </div>
+  </div>
+  <div class="teamrow">
+   <label for="team">Team name used in file names<input id="team" value="C2" autocomplete="off"></label>
+   <p>Must be <b>identical to the team name in Blackboard</b>. Our earlier plan recorded <code>C2</code>; change it here if that is wrong and every file name and command on this page follows. Ticks are saved in this browser only.</p>
+  </div>
+ </div>
+</header>
+
+<nav class="nav" aria-label="Sections">
+ <a href="#req">Requirements</a><a href="#materials">Materials</a><a href="#common">common/</a><a href="#style">Lab style</a><a href="#arch">Structure</a><a href="#phases">Phases</a><a href="#trace">Checklist</a><a href="#deliver">Docs &amp; submission</a><a href="#git">Git</a><a href="#open">Open questions</a>
+</nav>
+
+<!-- ============================================================ REQUIREMENTS -->
+<section class="band" id="req">
+ <div class="wrap">
+  <h2>What the assignment asks for</h2>
+  <p>Everything below comes from <code>CSCI2408-HW-team-project-v0.pdf</code>. The PDF is the authority on <b>what</b> to build; the lab code decides <b>how</b> we build it.</p>
+  <div class="tablewrap"><table class="stack">
+   <thead><tr><th>ID</th><th>Requirement (PDF wording, shortened)</th><th>Weight</th><th>Phase</th></tr></thead>
+   <tbody>
+    <tr><td data-l="ID"><span class="pill p-min">M1</span></td><td data-l="Requirement">Large plane with randomly positioned, non-intersecting spheres of a chosen radius; each sphere is a polyhedron</td><td data-l="Weight" rowspan="4">Minimum = 40% of functionality</td><td data-l="Phase">2, 3</td></tr>
+    <tr><td data-l="ID"><span class="pill p-min">M2</span></td><td data-l="Requirement">Perspective projection set and changed so the player's sphere (the katamari, which grows by attaching spheres) appears at bottom centre, a wider behind-the-back third-person view</td><td data-l="Phase">4</td></tr>
+    <tr><td data-l="ID"><span class="pill p-min">M3</span></td><td data-l="Requirement">User rotates the scene around the player with the mouse</td><td data-l="Phase">5</td></tr>
+    <tr><td data-l="ID"><span class="pill p-min">M4</span></td><td data-l="Requirement">Short fun video (≤ 5 min) explaining the program and approaches, no full code shown; public personal Instagram post with #ADAUniversity #CSCI2408 #Katamari #weDIDit + one of #Kirpivari #BalBall #Maqnitop</td><td data-l="Phase">16</td></tr>
+    <tr><td data-l="ID"><span class="pill p-a">A1</span></td><td data-l="Requirement">Fixed light source and appropriate materials for the spheres</td><td data-l="Weight" rowspan="4">Requirements A = 20%</td><td data-l="Phase">7</td></tr>
+    <tr><td data-l="ID"><span class="pill p-a">A2</span></td><td data-l="Requirement">Keyboard slides the player forward, backward, left, right; it slows down and stops without input</td><td data-l="Phase">6</td></tr>
+    <tr><td data-l="ID"><span class="pill p-a">A3</span></td><td data-l="Requirement">Appropriate textures on all models</td><td data-l="Phase">8</td></tr>
+    <tr><td data-l="ID"><span class="pill p-a">A4</span></td><td data-l="Requirement">Spherical skybox with a texture, acting as the border of the scene</td><td data-l="Phase">9</td></tr>
+    <tr><td data-l="ID"><span class="pill p-b">B1</span></td><td data-l="Requirement">Player rolls through the scene with believable katamari wobbling (needs A2)</td><td data-l="Weight" rowspan="4">Requirements B = 20%</td><td data-l="Phase">10, 12</td></tr>
+    <tr><td data-l="ID"><span class="pill p-b">B2</span></td><td data-l="Requirement">On collision, the katamari (player's sphere <i>or any attachment</i>) attaches a smaller sphere and adds its volume, or bounces off a larger one</td><td data-l="Phase">11</td></tr>
+    <tr><td data-l="ID"><span class="pill p-b">B3</span></td><td data-l="Requirement">Katamari bounces off the inner surface of the spherical skybox (needs A4)</td><td data-l="Phase">13</td></tr>
+    <tr><td data-l="ID"><span class="pill p-b">B4</span></td><td data-l="Requirement">Light source orbits the scene like the sun rising and setting (needs A1)</td><td data-l="Phase">14</td></tr>
+   </tbody>
+  </table></div>
+  <div class="two">
+   <div class="panel">
+    <h3 style="margin-top:0">How the grade is computed</h3>
+    <ul>
+     <li><b>Correctly functioning code 60%</b> · <b>Well documented code 20%</b> · <b>Neat readable code 10%</b> · <b>Solid use of OOP 10%</b>.</li>
+     <li>A <b>coefficient</b> multiplies the program grade: at least one meaningful commit <b>every workday</b> from the first Thursday after the assignment was posted until submission, and <b>every member</b> must have meaningful commits.</li>
+     <li>Not following the setup instructions (Classroom50 team name, renamed files) gives <b>zero</b>.</li>
+    </ul>
+   </div>
+   <div class="panel">
+    <h3 style="margin-top:0">Hard restrictions</h3>
+    <ul>
+     <li>Only the <b>common external libraries from the original repository</b>: <code>common/MV.js</code>, <code>common/initShaders.js</code>, <code>common/webgl-utils.js</code>. No three.js, no CDN, no <code>MV2.js</code>/<code>initShaders2.js</code> (those are only in the lab repos).</li>
+     <li>Rename the root <code>.htm</code>/<code>.js</code> files with <code>-<span class="tn">C2</span></code>. Extra files are allowed (“organize your own work in as many files as needed”).</li>
+     <li>The ZIP <code>katamari-<span class="tn">C2</span>.zip</code> must run on a <b>localhost web server</b> without fixes.</li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ============================================================ MATERIALS -->
+<section class="band" id="materials" style="background:var(--panel)">
+ <div class="wrap">
+  <h2>What is in the materials we were given</h2>
+  <p>Every file below was opened and read. “Use” says what the plan takes from it.</p>
+  <div class="tablewrap" style="background:var(--bg)"><table class="stack">
+   <thead><tr><th>File</th><th>What it is</th><th>Use in our project</th></tr></thead>
+   <tbody>
+    <tr><td data-l="File"><code>…-group-10-main/katamari.html</code></td><td data-l="What it is">Starter page: inline shaders <code>vertex-shader</code>/<code>fragment-shader</code> (position only, solid red), the three <code>common/</code> script tags between Ed Angel copyright comments, an 800×600 canvas <code>gl-canvas</code>, grey <code>#888888</code> background. Header still says “Fall 2025” and “Name Surname”.</td><td data-l="Use">Rename to <code>katamari-<span class="tn">C2</span>.html</code> and grow it. Keep its layout, canvas id and the copyright comments.</td></tr>
+    <tr><td data-l="File"><code>…-group-10-main/katamari.js</code></td><td data-l="What it is">Starter script: <code>var canvas; var gl; window.onload = init;</code> and an <code>init()</code> that only calls <code>WebGLUtils.setupWebGL</code>. No <code>"use strict"</code>.</td><td data-l="Use">Rename to <code>katamari-<span class="tn">C2</span>.js</code>; it becomes our main file (globals, <code>init</code>, <code>transform</code>, <code>render</code>, handlers).</td></tr>
+    <tr><td data-l="File"><code>…-group-10-main/README.md</code></td><td data-l="What it is">Template: project name, contribution table (name, contribution, %), dated Developer Log entries (<code>{X} November 2026</code> + <code>---</code>).</td><td data-l="Use">Our Developer Log. Keep its format.</td></tr>
+    <tr><td data-l="File"><code>…-group-10-main/common/</code></td><td data-l="What it is"><code>MV.js</code> (979 lines), <code>initShaders.js</code>, <code>webgl-utils.js</code>, <code>README.txt</code>. Identical to the labs' copies except one alert message in <code>initShaders.js</code> (see below).</td><td data-l="Use">Mandatory. Loaded first, never edited. Details in <a href="#common">common/</a>.</td></tr>
+    <tr><td data-l="File"><b>Lab 08 · webgl</b> (HTML + JS)<br><span class="note">“Week 08 – Simple example with WebGL”</span></td><td data-l="What it is">One triangle: <code>init()</code> with <code>setupWebGL</code>, <code>clearColor</code>, <code>initShaders</code>, <code>useProgram</code>, <code>createBuffer/bindBuffer/bufferData(flatten(…))</code>, <code>getAttribLocation/vertexAttribPointer/enableVertexAttribArray</code>, a <code>uniform float angle</code>, per-vertex colour varying, and <code>window.setInterval(render, delay)</code>.</td><td data-l="Use">Phase 1: the exact order of WebGL calls in <code>init()</code> and the uniform-update pattern.</td></tr>
+    <tr><td data-l="File"><b>Lab 10 · gl-rotation</b> (HTML + JS)<br><span class="note">“Week 10 – Reading 3D model with WebGL”</span></td><td data-l="What it is"><code>class Object</code> (fields, constructor, private <code>#onFileLoadEnd</code>, <code>.bind(this)</code>, <code>onloadend</code> callback), OBJ parsing, <code>transform()</code> building <code>matrixProjection</code> with <code>perspective(90, canvas.width / canvas.height, 0.1, 10)</code> and <code>matrixModelview</code> with <code>mult(scalem/rotateX/rotateY/translate, …)</code>, <code>render()</code> with <code>DEPTH_TEST</code>/<code>CULL_FACE</code> toggles and <code>uniformMatrix4fv(…, false, flatten(matrixCTM))</code>, <code>window.onkeydown = onKeyDown</code> with <code>switch(e.key)</code>, <code>const ANGLE_INCREMENT</code>, and a test tetrahedron.</td><td data-l="Use">Phases 1–6: class layout, <code>transform()</code>/<code>render()</code> split, matrix names, keyboard handler style, depth test. OBJ loading is <b>not needed</b> (our spheres are generated).</td></tr>
+    <tr><td data-l="File"><b>Lab 12 · gl-texture</b> (HTML + JS)<br><span class="note">“Week 12 – Texture mapping with WebGL”</span></td><td data-l="What it is">Renamed shader variables to <code>aPosition/aColor/aTexCoord</code>, <code>uCTM</code>, <code>uImage0</code>, <code>vColor/vTexCoord</code>; a 64×64 checkerboard in a <code>Uint8Array</code>; <code>createTexture</code>, <code>activeTexture(gl.TEXTURE0)</code>, <code>bindTexture</code>, <code>texImage2D</code>, <code>generateMipmap</code>, <code>uniform1i(uImage0, 0)</code>; image loading through <code>new Image()</code> and <code>onload</code>.</td><td data-l="Use">Phase 8 (textures) and the a/u/v naming used everywhere.</td></tr>
+    <tr><td data-l="File"><code>Lab 12/…/obj-files/textures/*.bmp</code></td><td data-l="What it is">20 images, 24-bit BMP, all power-of-two (256×256, plus <code>nat-cloudsky.bmp</code> and <code>nat-water.bmp</code> at 256×128). Chromium loads them into WebGL without errors (checked).</td><td data-l="Use">Our textures (Phase 8–9), copied into <code>textures/</code> and cited.</td></tr>
+    <tr><td data-l="File"><code>Lab 10</code>, <code>Lab 12</code> <code>…/obj-files/*.obj</code></td><td data-l="What it is">Teapot, Al, Vader, … models for the OBJ loader.</td><td data-l="Use">Not needed. The assignment asks for spheres only.</td></tr>
+    <tr><td data-l="File"><code>labs/*/common/MV2.js</code>, <code>initShaders2.js</code></td><td data-l="What it is">Lab-only extras: shaders from separate files via AJAX, a split copy of MV.js.</td><td data-l="Use"><b>Do not use.</b> They are not in our team repository, so they fall outside “common external libraries from the original repository”.</td></tr>
+   </tbody>
+  </table></div>
+ </div>
+</section>
+
+<!-- ============================================================ COMMON -->
+<section class="band" id="common">
+ <div class="wrap">
+  <h2>The <code>common/</code> folder: what it gives us</h2>
+  <p>Everything mathematical we need already exists in <code>MV.js</code>. Before writing a helper, search this table. The folder name is lowercase <code>common/</code>: GitHub and Linux web servers are case-sensitive, so <code>Common/MV.js</code> would give a 404.</p>
+  <div class="tablewrap"><table class="stack">
+   <thead><tr><th>Function</th><th>File</th><th>Where we use it</th><th>Watch out</th></tr></thead>
+   <tbody>
+    <tr><td data-l="Function"><code>WebGLUtils.setupWebGL(canvas)</code></td><td data-l="File">webgl-utils.js</td><td data-l="Where">Phase 1, <code>init()</code></td><td data-l="Watch out">Returns <code>null</code> without WebGL; keep the labs' <code>if (!gl) { alert(…) }</code>.</td></tr>
+    <tr><td data-l="Function"><code>requestAnimFrame(render)</code></td><td data-l="File">webgl-utils.js</td><td data-l="Where">Phase 1, end of <code>render()</code></td><td data-l="Watch out">Replaces the Lab 08 <code>setInterval</code>; call it once per frame, at the end of <code>render()</code>.</td></tr>
+    <tr><td data-l="Function"><code>initShaders(gl, "vertex-shader", "fragment-shader")</code></td><td data-l="File">initShaders.js</td><td data-l="Where">Phase 1</td><td data-l="Watch out">Reads the inline <code>&lt;script&gt;</code> shaders by id; returns <code>-1</code> and shows an <code>alert</code> with the compile log on error. In our copy a missing <i>fragment</i> shader is reported as “Unable to load vertex shader” (the labs fixed this, ours didn't; we don't edit common/).</td></tr>
+    <tr><td data-l="Function"><code>vec2, vec3, vec4, mat3, mat4</code></td><td data-l="File">MV.js</td><td data-l="Where">everywhere</td><td data-l="Watch out"><code>vec4(v3, 0.0)</code> builds a direction, <code>vec4(v3)</code> gets w = 1. <code>mat4()</code> is the identity.</td></tr>
+    <tr><td data-l="Function"><code>translate(x,y,z | v3)</code>, <code>scalem(x,y,z)</code>, <code>rotate(deg, axis)</code>, <code>rotateX/Y/Z(deg)</code></td><td data-l="File">MV.js</td><td data-l="Where">model matrices, rolling</td><td data-l="Watch out">Angles in <b>degrees</b>. <code>scalem</code> is the matrix, <code>scale(s, v)</code> scales a vector.</td></tr>
+    <tr><td data-l="Function"><code>mult(A, B)</code></td><td data-l="File">MV.js</td><td data-l="Where">all transformations</td><td data-l="Watch out"><code>mult(A, B)</code> applies B first, so model = T · R · S. Matrix × vector needs equal sizes: <code>mult(mat4, vec3)</code> <b>throws</b> “vectors are not the same dimension”. Two vectors → component-wise product (used for light × material).</td></tr>
+    <tr><td data-l="Function"><code>add, subtract, scale(s, v), negate, dot, cross, length, mix</code></td><td data-l="File">MV.js</td><td data-l="Where">physics, camera, collisions</td><td data-l="Watch out"><code>cross</code> returns a 3-vector. Don't name your own variables <code>scale</code>, <code>length</code>, <code>mix</code>, <code>translate</code>…: a global with that name replaces the MV.js function (the labs use <code>scaleFactor</code> for this reason).</td></tr>
+    <tr><td data-l="Function"><code>normalize(v)</code></td><td data-l="File">MV.js</td><td data-l="Where">directions, normals</td><td data-l="Watch out"><b>Changes <code>v</code> in place</b> and returns it. A zero vector silently becomes <code>[NaN, NaN, NaN]</code> (checked); always test <code>length(v) &gt; 0</code> first.</td></tr>
+    <tr><td data-l="Function"><code>lookAt(eye, at, up)</code></td><td data-l="File">MV.js</td><td data-l="Where">Phase 4 camera</td><td data-l="Watch out">If the view direction is parallel to <code>up</code> it <b>throws</b> (checked) and the render loop stops. Never let the camera look straight down.</td></tr>
+    <tr><td data-l="Function"><code>perspective(fovyDeg, aspect, near, far)</code></td><td data-l="File">MV.js</td><td data-l="Where">Phase 1, 4</td><td data-l="Watch out">Use <code>canvas.width / canvas.height</code> (Lab 10), not the fixed <code>2</code> used in Lab 12.</td></tr>
+    <tr><td data-l="Function"><code>transpose(m)</code>, <code>inverse(m)</code>, <code>normalMatrix(m, true)</code></td><td data-l="File">MV.js</td><td data-l="Where">Phase 7 lighting, Phase 11 attachments</td><td data-l="Watch out"><code>normalMatrix(mv, true)</code> returns a mat3 (9 floats after <code>flatten</code>, checked) for <code>uniformMatrix3fv</code>. The transpose of a pure rotation is its inverse.</td></tr>
+    <tr><td data-l="Function"><code>flatten(v | m)</code></td><td data-l="File">MV.js</td><td data-l="Where">every <code>bufferData</code> and uniform</td><td data-l="Watch out">Already transposes matrices to column-major, so the second argument of <code>uniformMatrix4fv</code> is always <code>false</code>.</td></tr>
+    <tr><td data-l="Function"><code>radians(deg)</code></td><td data-l="File">MV.js</td><td data-l="Where">camera</td><td data-l="Watch out"><code>Math.sin/cos</code> need radians; MV.js matrix functions need degrees.</td></tr>
+    <tr><td data-l="Function"><code>ortho, equal, printm, det, sizeof</code></td><td data-l="File">MV.js</td><td data-l="Where">—</td><td data-l="Watch out">Not needed (<code>printm</code> is handy for debugging a matrix in the console).</td></tr>
+   </tbody>
+  </table></div>
+  <h3>How <code>common/</code> is integrated</h3>
+  <p>The scripts load in this order in <code>katamari-<span class="tn">C2</span>.html</code>: the three common files exactly as the starter page has them, then our class files (each class before the classes and code that use it), then the main file. Because these are classic scripts, everything they define is a global, which is exactly how the labs share <code>gl</code>, <code>vec4</code> or <code>initShaders</code> between files.</p>
+  <div class="cmd"><button class="copy" type="button">Copy</button><pre>&lt;!-- Copyright (c) &lt;2012-2015&gt; Ed Angel and Dave Shreiner --&gt;
+&lt;script type="text/javascript" src="common/webgl-utils.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="common/initShaders.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="common/MV.js"&gt;&lt;/script&gt;
+&lt;!-- Copyright (c) &lt;2012-2015&gt; Ed Angel and Dave Shreiner --&gt;
+
+&lt;!-- Our own classes (added in later phases), always before the main file that uses them --&gt;
+&lt;!-- &lt;script type="text/javascript" src="mesh.js"&gt;&lt;/script&gt;   Phase 2 --&gt;
+&lt;!-- &lt;script type="text/javascript" src="sphere.js"&gt;&lt;/script&gt; Phase 3 --&gt;
+&lt;!-- &lt;script type="text/javascript" src="player.js"&gt;&lt;/script&gt; Phase 4 --&gt;
+&lt;!-- &lt;script type="text/javascript" src="camera.js"&gt;&lt;/script&gt; Phase 4 --&gt;
+&lt;script type="text/javascript" src="katamari-{TEAM}.js"&gt;&lt;/script&gt;</pre></div>
+ </div>
+</section>
+
+<!-- ============================================================ LAB STYLE -->
+<section class="band" id="style" style="background:var(--panel)">
+ <div class="wrap">
+  <h2>Coding style we copy from the labs</h2>
+  <p>These are the conventions visible in all three lab samples. Following them keeps the project recognisably “ours from the course”. Where the game needs something no lab shows, the phase card says so with <span class="nolab">not in labs</span> and uses the smallest step away from these conventions.</p>
+  <div class="two">
+   <div class="panel" style="background:var(--bg)">
+    <h3 style="margin-top:0">Do it like the labs</h3>
+    <ul>
+     <li><b>Header comment</b> on every file (course, year, authors) and <code>"use strict";</code> with the labs' explanatory comment.</li>
+     <li><b>Globals at the top</b> with <code>var</code> (<code>canvas</code>, <code>gl</code>, matrices, locations); <b>constants</b> as <code>const UPPER_CASE</code> like <code>ANGLE_INCREMENT</code>, each with a comment giving its meaning and unit.</li>
+     <li><b>Handlers assigned directly</b>: <code>window.onload = init;</code>, <code>window.onkeydown = onKeyDown;</code>, named <code>onSomething(e)</code>.</li>
+     <li><b><code>init()</code></b> with <code>console.log("init... Begin")</code>/<code>"… End"</code>; WebGL calls in the Lab 08 order, one short comment above each.</li>
+     <li><b><code>transform()</code> computes matrices, <code>render()</code> draws</b> (Lab 10/Lab 12). Matrices named <code>matrixProjection</code>, <code>matrixModelview</code>.</li>
+     <li><b>Non-indexed triangle lists</b>: arrays of <code>vec4</code> pushed triangle by triangle, uploaded with <code>bufferData(…, flatten(…), gl.STATIC_DRAW)</code> and drawn with <code>drawArrays(gl.TRIANGLES, 0, n)</code>. No element buffers (no lab uses them).</li>
+     <li><b>Shaders inline</b> in the HTML, <code>precision mediump float;</code>, names <code>aSomething</code> (attribute), <code>uSomething</code> (uniform), <code>vSomething</code> (varying) as in Lab 12. JavaScript location variables use the same names (<code>aPosition</code>, <code>uImage0</code>).</li>
+     <li><b>Classes</b> as in Lab 10/Lab 12: fields listed at the top with comments, set in the <code>constructor</code>, private helpers as <code>#method</code>, <code>.bind(this)</code> when a method is used as a callback.</li>
+     <li><b>HTML</b>: grey <code>#888888</code> body, <code>&lt;center&gt;</code>, canvas <code>gl-canvas</code>, a <code>&lt;div&gt;</code> line explaining the controls (Lab 10/Lab 12: “Press +/- for scaling…”).</li>
+    </ul>
+   </div>
+   <div class="panel" style="background:var(--bg)">
+    <h3 style="margin-top:0">Lab quirks we must not copy</h3>
+    <ul>
+     <li><code>class Object</code> (Lab 10, Lab 12) hides JavaScript's built-in <code>Object</code>. Name our classes <code>Mesh</code>, <code>Sphere</code>, <code>Player</code>, <code>Camera</code>.</li>
+     <li><code>gl.enable(gl.TEXTURE_2D)</code> (Lab 12 <code>render()</code>) is desktop OpenGL, not WebGL: Chromium logs <code>INVALID_ENUM: enable: invalid capability</code> every frame (checked). Leave it out.</li>
+     <li><code>perspective(90, 2, 0.1, 10)</code> in Lab 12 hard-codes the aspect ratio and stretches the image; use <code>canvas.width / canvas.height</code> as Lab 10 does.</li>
+     <li>Lab 12 folds the camera <code>translate</code> into <code>matrixProjection</code>. That breaks lighting, which needs the camera in the model-view; we use <code>lookAt</code> for the view (Phase 4).</li>
+     <li>Spelling slips such as <code>onTexImageLaod</code> and <code>texParatmeteri</code>: spell our names correctly, readability is 10% of the grade.</li>
+     <li>Lab 08 animates with <code>setInterval(render, 50)</code>; for a game use <code>requestAnimFrame</code> from webgl-utils.js and a measured <code>dt</code>.</li>
+     <li>The starter header says “Fall 2025”: fix it to Fall 2026 with our names.</li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ============================================================ ARCHITECTURE -->
+<section class="band" id="arch">
+ <div class="wrap">
+  <h2>Target structure</h2>
+  <p>Six source files: the two renamed starter files plus four small class files, all in the repository root like the labs. Four classes are enough for a “solid OOP approach” and each one maps to a real thing in the game. Game-wide logic (placing spheres, collisions, textures, light) stays as plain functions in the main file, the way the labs keep <code>init</code>, <code>render</code> and the handlers.</p>
+  <div class="two">
+<div class="tree"><b>csci-2408-…-team-project-group-10/</b>
+├── katamari-<span class="tn">C2</span>.html   <i>renamed · shaders inline · canvas · script tags</i>
+├── katamari-<span class="tn">C2</span>.js     <i>renamed · globals, constants, init(), transform(),</i>
+│                        <i>update(dt), render(), handlers, helper functions</i>
+├── mesh.js              <i>new · class Mesh</i>
+├── sphere.js            <i>new · class Sphere</i>
+├── player.js            <i>new · class Player extends Sphere</i>
+├── camera.js            <i>new · class Camera</i>
+├── textures/            <i>new · BMP images copied from the gl-texture lab</i>
+├── common/              <i>given · never edited</i>
+│   ├── MV.js  initShaders.js  webgl-utils.js  README.txt
+├── README.md            <i>given template · Developer Log</i>
+└── .gitattributes       <i>given</i></div>
+   <div>
+    <div class="tablewrap" style="margin-top:0"><table class="stack">
+     <thead><tr><th>Class</th><th>Holds</th><th>Methods (phase)</th></tr></thead>
+     <tbody>
+      <tr><td data-l="Class"><code>Mesh</code></td><td data-l="Holds">triangle arrays + buffer ids</td><td data-l="Methods"><code>makeSphere</code>, <code>#addSpherePoint</code>, <code>makePlane</code>, <code>loadToGPU</code>, <code>draw</code> (2)</td></tr>
+      <tr><td data-l="Class"><code>Sphere</code></td><td data-l="Holds">position, radius, material, texture</td><td data-l="Methods"><code>getModelMatrix</code>, <code>intersects</code>, <code>draw</code> (3); material (7); texture (8)</td></tr>
+      <tr><td data-l="Class"><code>Player</code> extends <code>Sphere</code></td><td data-l="Holds">velocity, orientation, attachments, totalVolume</td><td data-l="Methods"><code>effectiveRadius</code> (4), <code>update</code> (6, 10), <code>attach</code>, <code>getAttachmentPosition</code>, <code>getAttachmentModelMatrix</code>, <code>getParts</code>, <code>bounceOff</code> (11), <code>settleOnGround</code> (12), <code>boundingRadius</code>, <code>bounceOffSky</code> (13)</td></tr>
+      <tr><td data-l="Class"><code>Camera</code></td><td data-l="Holds">yaw, height/distance/ahead factors</td><td data-l="Methods"><code>getForward</code>, <code>getRight</code>, <code>getViewMatrix</code> (4, 9)</td></tr>
+     </tbody>
+    </table></div>
+    <p class="note">Main-file functions: <code>init</code>, <code>transform</code>, <code>update</code>, <code>render</code>, <code>setModelView</code>, <code>setMaterial</code>, <code>placeSpheres</code>, <code>countOverlaps</code>, <code>loadTexture</code>, <code>getInputDirection</code>, <code>checkCollisions</code>, <code>onKeyDown</code>, <code>onKeyUp</code>, <code>onMouseDown</code>, <code>onMouseUp</code>, <code>onMouseMove</code>.</p>
+   </div>
+  </div>
+  <h3>Shader interface (final state, after Phase 9)</h3>
+  <div class="tablewrap"><table class="stack">
+   <thead><tr><th>GLSL name</th><th>Kind</th><th>JavaScript sets it with</th><th>Phase</th></tr></thead>
+   <tbody>
+    <tr><td data-l="GLSL"><code>aPosition</code> vec4 · <code>aNormal</code> vec3 · <code>aTexCoord</code> vec2</td><td data-l="Kind">attributes</td><td data-l="Set with"><code>Mesh.draw()</code>: <code>bindBuffer</code> + <code>vertexAttribPointer</code> + <code>enableVertexAttribArray</code></td><td data-l="Phase">1, 2</td></tr>
+    <tr><td data-l="GLSL"><code>uProjection</code> mat4 · <code>uModelView</code> mat4</td><td data-l="Kind">uniforms</td><td data-l="Set with"><code>uniformMatrix4fv(loc, false, flatten(m))</code></td><td data-l="Phase">1</td></tr>
+    <tr><td data-l="GLSL"><code>uNormalMatrix</code> mat3</td><td data-l="Kind">uniform</td><td data-l="Set with"><code>uniformMatrix3fv(loc, false, flatten(normalMatrix(matrixModelview, true)))</code></td><td data-l="Phase">7</td></tr>
+    <tr><td data-l="GLSL"><code>uLightPosition</code> vec4</td><td data-l="Kind">uniform</td><td data-l="Set with"><code>uniform4fv(loc, flatten(mult(matrixView, lightPosition)))</code></td><td data-l="Phase">7, 14</td></tr>
+    <tr><td data-l="GLSL"><code>uAmbientProduct</code>, <code>uDiffuseProduct</code>, <code>uSpecularProduct</code> vec4 · <code>uShininess</code> float</td><td data-l="Kind">uniforms</td><td data-l="Set with"><code>setMaterial(…)</code>: <code>uniform4fv</code>, <code>uniform1f</code></td><td data-l="Phase">7</td></tr>
+    <tr><td data-l="GLSL"><code>uImage0</code> sampler2D</td><td data-l="Kind">uniform</td><td data-l="Set with"><code>uniform1i(uImage0, 0)</code> once; <code>bindTexture</code> per object</td><td data-l="Phase">8</td></tr>
+    <tr><td data-l="GLSL"><code>uUseLighting</code> float</td><td data-l="Kind">uniform</td><td data-l="Set with"><code>uniform1f</code>: 0.0 for the sky, 1.0 for everything else</td><td data-l="Phase">9</td></tr>
+    <tr><td data-l="GLSL"><code>vNormal</code>, <code>vLight</code>, <code>vEye</code> vec3 · <code>vTexCoord</code> vec2</td><td data-l="Kind">varyings</td><td data-l="Set with">vertex shader only</td><td data-l="Phase">2, 7</td></tr>
+   </tbody>
+  </table></div>
+  <h3>World conventions</h3>
+  <ul>
+   <li>Units are metres and seconds. Y is up, the ground is the plane <code>y = 0</code>, the sky is centred at the origin.</li>
+   <li>Every ball is the <b>same unit sphere mesh</b>, scaled by its radius in its model matrix. The sky is that sphere with radius <code>SKY_RADIUS</code>.</li>
+   <li><code>CULL_FACE</code> stays <b>off</b> (the labs' default), so triangle winding never matters, including for the sky seen from inside.</li>
+   <li>Every speed and angle change is multiplied by <code>dt</code> (seconds since last frame), so the game runs the same at 30 or 144 fps.</li>
+  </ul>
+ </div>
+</section>
+
+<!-- ============================================================ PHASES -->
+<section class="band" id="phases" style="background:var(--panel)">
+ <div class="wrap">
+  <h2>Implementation phases</h2>
+  <p>Do them in order. Each phase ends with a page that runs on localhost with no console errors, and keeps everything earlier phases built. Tick “Phase done” only when every test in its card passes.</p>
+  <ul class="flow">
+   <li style="--c:var(--doc)"><a href="#p0">0 Setup</a></li><li style="--c:var(--doc)"><a href="#p1">1 Loop</a></li><li style="--c:var(--min)"><a href="#p2">2 Mesh</a></li><li style="--c:var(--min)"><a href="#p3">3 Scene</a></li><li style="--c:var(--min)"><a href="#p4">4 Camera</a></li><li style="--c:var(--min)"><a href="#p5">5 Mouse</a></li><li class="ms">Minimum requirements done</li>
+   <li style="--c:var(--reqa)"><a href="#p6">6 Slide</a></li><li style="--c:var(--reqa)"><a href="#p7">7 Light</a></li><li style="--c:var(--reqa)"><a href="#p8">8 Textures</a></li><li style="--c:var(--reqa)"><a href="#p9">9 Skybox</a></li><li class="ms">Requirements A done</li>
+   <li style="--c:var(--reqb)"><a href="#p10">10 Roll</a></li><li style="--c:var(--reqb)"><a href="#p11">11 Attach</a></li><li style="--c:var(--reqb)"><a href="#p12">12 Wobble</a></li><li style="--c:var(--reqb)"><a href="#p13">13 Sky bounce</a></li><li style="--c:var(--reqb)"><a href="#p14">14 Sun</a></li><li class="ms">Requirements B done</li>
+   <li style="--c:var(--doc)"><a href="#p15">15 Docs</a></li><li style="--c:var(--doc)"><a href="#p16">16 Video &amp; submit</a></li>
+  </ul>
+  <p class="note">Phases 6–9 depend only on Phases 0–5 and could be worked on in parallel branches; Phases 10–14 likewise depend on 6–9 (exact dependencies are in each card).</p>
+  <div class="panel"><b>How the code in this plan was checked.</b> All snippets were assembled into a throwaway test page (not part of the repository, not our implementation) using our team's <code>common/</code> files and the lab textures, and run in Chromium: shaders compiled, no console errors, the ball sat at screen y = −0.47, collected spheres and bounced, and placement gave zero overlaps. The snippets are guides to adapt and comment, not finished code to paste.</div>
+
+  <!-- ---------------- PHASE 0 -->
+  <article class="phase" id="p0" style="--c:var(--doc)">
+   <div class="phead"><h3><span class="n">0</span>Repository setup and <code>common/</code> integration</h3><label class="pdone"><input type="checkbox" data-c="p0" data-phase="0"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>Rename the two starter files, fix their headers, add <code>"use strict"</code>, and confirm the three <code>common/</code> libraries load from a local web server. Start the Developer Log.</dd>
+    <dt>Why</dt><dd>The PDF gives <b>zero</b> if the files aren't renamed with the team name, and the grader runs the ZIP on localhost. Textures (Phase 8) only load over <code>http://</code>, never <code>file://</code>.</dd>
+    <dt>Builds on</dt><dd>Classroom50 team created with the Blackboard name and the repo cloned in VS Code (already done according to our first plan).</dd>
+    <dt>Files</dt><dd><code>katamari.html</code> → <code>katamari-<span class="tn">C2</span>.html</code>, <code>katamari.js</code> → <code>katamari-<span class="tn">C2</span>.js</code>, <code>README.md</code>. Don't touch <code>common/</code>.</dd>
+    <dt>Lab reference</dt><dd class="labref">Header and <code>"use strict"</code> block at the top of the gl-texture lab (Lab 12); script tags in the webgl lab (Lab 08).</dd>
+    <dt>common/</dt><dd>Only loaded here; the starter page already has the right three tags.</dd>
+    <dt>How</dt><dd>
+     <ol><li>Rename with <code>git mv</code>, then change <code>src="katamari.js"</code> in the HTML to the new name.</li>
+     <li>Replace “Fall 2025” and “Name Surname” in both headers; add the lab's <code>"use strict"</code> block to the JS.</li>
+     <li>Put the project's real name in <code>README.md</code> and write the first Developer Log entry (template in <a href="#deliver">Docs &amp; submission</a>).</li>
+     <li>Start a server in the repository root and open the page.</li></ol>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre># Rename the two given files (git mv keeps their history)
+git mv katamari.html katamari-{TEAM}.html
+git mv katamari.js   katamari-{TEAM}.js
+
+# Run a local web server from the repository root (the folder that contains common/)
+python3 -m http.server 8000        # Windows: py -m http.server 8000
+# then open  http://localhost:8000/katamari-{TEAM}.html</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>/*
+    CSCI 2408 Computer Graphics Fall 2026
+    (c)2026 by Full Name 1, Full Name 2, Full Name 3, Full Name 4 (team {TEAM})
+    Submitted in partial fulfillment of the requirements of the course.
+
+    Based on the code samples for CSCI 2408 by Araz Yusubov (labs: webgl, gl-rotation, gl-texture)
+    and on the common/ library by Ed Angel and Dave Shreiner (MV.js, initShaders.js, webgl-utils.js).
+*/
+
+"use strict";
+// The purpose of "use strict" is to indicate that the code should be executed in "strict mode".
+// With strict mode, you can not, for example, use undeclared variables.</pre></div>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Opening the page by double-click (<code>file://</code>); a team name that differs from Blackboard; editing or “fixing” anything in <code>common/</code>; copying <code>MV2.js</code>/<code>initShaders2.js</code> from the labs; renaming the folder to <code>Common/</code>; committing the assignment PDF, the lab ZIPs or this plan into the repository (the PDF may not be shared with third parties, and everything tracked ends up in the submission ZIP; see Phase 16).</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t0a"><span>Page opens at <code>http://localhost:8000/katamari-<span class="tn">C2</span>.html</code>; the Network tab shows all four scripts with status 200.</span></label>
+     <label><input type="checkbox" data-c="t0b"><span>The console checks below print <code>"function"</code>, and there are no red errors.</span></label>
+     <label><input type="checkbox" data-c="t0c"><span>First Developer Log entry committed and pushed.</span></label></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Type in the DevTools console after the page loads. Each line must print what is shown.
+typeof WebGLUtils.setupWebGL   // "function"   (common/webgl-utils.js)
+typeof initShaders             // "function"   (common/initShaders.js)
+typeof lookAt                  // "function"   (common/MV.js)
+typeof requestAnimFrame        // "function"   (common/webgl-utils.js)</pre></div></dd>
+    <dt>Expected result</dt><dd class="expect">Grey page with the (still transparent) 800×600 canvas, clean console. Nothing is drawn yet.</dd>
+    <dt class="test">Status</dt><dd><span class="good">✓ Done 26 November 2026</span> on branch <code>sphere-mesh</code>, merged into <code>main</code>. Files already renamed to <code>katamari-<span class="tn">C2</span>.html/.js</code>; headers say Fall 2026 with our names and references; <code>"use strict"</code> added; only the three <code>common/</code> files are loaded, <code>common/</code> unchanged. The old <code>src/</code> folder (Renderer, World, ShaderProgram, config) is removed from <code>main</code> (last version in commit <code>3b20915</code>). Developer Log entry added to <code>README.md</code>. <b>Still to do:</b> the AI chat link in the log entry.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 1 -->
+  <article class="phase" id="p1" style="--c:var(--doc)">
+   <div class="phead"><h3><span class="n">1</span>Shaders, matrices and the render loop</h3><label class="pdone"><input type="checkbox" data-c="p1" data-phase="1"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>The lab skeleton inside our main file: <code>init()</code> that compiles the shaders and looks up locations, <code>transform()</code> for the projection and view matrices, and <code>render()</code> that runs every frame with a measured time step <code>dt</code>. Proven with the Lab 10 test tetrahedron spinning.</dd>
+    <dt>Why</dt><dd>Every later phase plugs into these three functions. A continuous loop is needed because the ball moves even when no event happens (the labs only re-rendered after an event).</dd>
+    <dt>Builds on</dt><dd>Phase 0.</dd>
+    <dt>Files</dt><dd><code>katamari-<span class="tn">C2</span>.html</code> (shaders), <code>katamari-<span class="tn">C2</span>.js</code>.</dd>
+    <dt>Lab reference</dt><dd class="labref"><code>init()</code> in the webgl lab (call order, comments); <code>transform()</code>, <code>render()</code> and the tetrahedron arrays in the gl-rotation lab; the a/u/v renaming in the gl-texture lab. <span class="nolab">not in labs</span> <code>requestAnimFrame</code> + <code>dt</code> (the labs used <code>setInterval</code> or no loop).</dd>
+    <dt>common/</dt><dd><code>WebGLUtils.setupWebGL</code>, <code>initShaders</code>, <code>requestAnimFrame</code>, <code>perspective</code>, <code>lookAt</code>, <code>mult</code>, <code>rotateY</code>, <code>flatten</code>, <code>mat4</code>.</dd>
+    <dt>Functions</dt><dd><code>init()</code>, <code>transform()</code>, <code>render()</code>. Globals <code>matrixProjection</code>, <code>matrixView</code>, <code>matrixModelview</code>, <code>aPosition</code>, <code>uModelView</code>, <code>uProjection</code>, <code>lastTime</code>.</dd>
+    <dt>How</dt><dd>
+     <p>Split the Lab 10 <code>uCTM</code> into <code>uProjection</code> and <code>uModelView</code> now; lighting needs the model-view on its own later, and changing it now avoids rewriting every draw call in Phase 7.</p>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>&lt;script id="vertex-shader" type="x-shader/x-vertex"&gt;
+    attribute vec4 aPosition;
+    attribute vec4 aColor;
+
+    // Model-view and projection matrices (set from JavaScript every frame)
+    uniform mat4 uModelView;
+    uniform mat4 uProjection;
+
+    // Varying variable to send the color to the fragment shader
+    varying vec4 vColor;
+
+    void main() {
+        // Pass the color to the fragment shader
+        vColor = aColor;
+
+        // Transform the vertex: object -&gt; camera -&gt; clip coordinates
+        gl_Position = uProjection * uModelView * aPosition;
+    }
+&lt;/script&gt;
+
+&lt;script id="fragment-shader" type="x-shader/x-fragment"&gt;
+    // Set how many bits used for float values, it won't work otherwise
+    precision mediump float;
+
+    // Varying variable to get color from the vertex shader
+    varying vec4 vColor;
+
+    void main() {
+        gl_FragColor = vColor;
+    }
+&lt;/script&gt;</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>var canvas;
+var gl;
+var program;
+
+// Matrices, named as in the gl-rotation lab
+var matrixProjection = mat4();
+var matrixView = mat4();        // camera only (new: needed later for lighting)
+var matrixModelview = mat4();   // matrixView * model matrix of the object being drawn
+
+// Attribute and uniform locations, named like the GLSL variables (gl-texture lab style)
+var aPosition;
+var aColor;
+var uModelView;
+var uProjection;
+
+// Time of the previous frame in milliseconds, used to compute dt
+var lastTime = 0;
+
+// Temporary test data: the tetrahedron from the gl-rotation lab (removed in Phase 2)
+var triangleVertices;
+var triangleColors;
+var testAngle = 0.0;
+
+window.onload = init;
+
+function init() {
+    console.log("init... Begin");
+    // Get reference to the WebGL context of the canvas
+    canvas = document.getElementById("gl-canvas");
+
+    gl = WebGLUtils.setupWebGL(canvas);
+    if (!gl) { alert("WebGL isn't available"); }
+
+    //  Configure WebGL
+    // Set the color value used when clearing color buffers.
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    // Hidden surface removal is always on in the game.
+    gl.enable(gl.DEPTH_TEST);
+
+    //  Load shaders and initialize attribute buffers
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
+    gl.useProgram(program);
+
+    aPosition   = gl.getAttribLocation(program, "aPosition");
+    aColor      = gl.getAttribLocation(program, "aColor");
+    uModelView  = gl.getUniformLocation(program, "uModelView");
+    uProjection = gl.getUniformLocation(program, "uProjection");
+
+    // ... copy the tetrahedron arrays and the createBuffer / bindBuffer / bufferData /
+    //     vertexAttribPointer / enableVertexAttribArray calls from init() in gl-rotation lab ...
+
+    lastTime = Date.now();
+    render();
+    console.log("init... End");
+}
+
+function transform() {
+    // Projection: use the canvas aspect ratio to prevent stretching (gl-rotation lab comment)
+    matrixProjection = perspective(60, canvas.width / canvas.height, 0.1, 100.0);
+    // Camera: a fixed test camera for now (Phase 4 replaces it)
+    matrixView = lookAt(vec3(0.0, 2.0, 5.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+}
+
+function render() {
+    // Time step in seconds since the previous frame.
+    // Capped at 0.05 s so the game does not jump after the tab was hidden.
+    var now = Date.now();
+    var dt = Math.min((now - lastTime) / 1000.0, 0.05);
+    lastTime = now;
+
+    // Clear color and depth buffers to preset values.
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    transform();
+
+    // Test animation: turn the tetrahedron 90 degrees per second
+    testAngle += 90.0 * dt;
+    matrixModelview = mult(matrixView, rotateY(testAngle));
+
+    // Specify the values of the uniform variables
+    gl.uniformMatrix4fv(uProjection, false, flatten(matrixProjection));
+    gl.uniformMatrix4fv(uModelView, false, flatten(matrixModelview));
+
+    // Render primitives from the array data
+    gl.drawArrays(gl.TRIANGLES, 0, triangleVertices.length);
+
+    // Ask the browser to call render() again before the next repaint (common/webgl-utils.js)
+    requestAnimFrame(render);
+}</pre></div>
+     <p><b>Full screen.</b> We draw in the whole browser window instead of the starter's fixed 800×600 box. The canvas loses its <code>width</code>/<code>height</code> attributes; CSS stretches it and <code>resizeCanvas()</code> sets the real pixel size and the WebGL viewport. <span class="nolab">not in labs</span> (the labs use a fixed canvas).</p>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>&lt;!-- katamari-{TEAM}.html: let the canvas fill the whole window --&gt;
+&lt;style&gt;
+    /* No margins and no scroll bars, so the canvas covers the whole page */
+    html, body { margin: 0; height: 100%; overflow: hidden; background-color: #888888; }
+    /* display: block removes the small gap under an inline canvas */
+    #gl-canvas { display: block; width: 100%; height: 100%; }
+    /* Control instructions float over the top-left corner of the game */
+    #controls { position: absolute; top: 8px; left: 8px; color: white; font-family: sans-serif; }
+&lt;/style&gt;
+
+&lt;body&gt;
+    &lt;canvas id="gl-canvas"&gt;
+        Oops ... your browser doesn't support the HTML5 canvas element
+    &lt;/canvas&gt;
+    &lt;!-- Phase 1 text; Phase 5 and Phase 6 replace it with the real controls --&gt;
+    &lt;div id="controls"&gt;Phase 1 test: spinning tetrahedron&lt;/div&gt;
+&lt;/body&gt;
+
+// katamari-{TEAM}.js: match the drawing size to the window size
+// Called once in init() and again every time the browser window changes size.
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    // Tell WebGL to draw into the whole new canvas area
+    gl.viewport(0, 0, canvas.width, canvas.height);
+}
+
+// In init(), right after gl = WebGLUtils.setupWebGL(canvas):
+resizeCanvas();
+window.onresize = resizeCanvas;
+
+// transform() already uses canvas.width / canvas.height for the aspect ratio,
+// so the picture is never stretched after a resize.</pre></div>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Calling <code>requestAnimFrame</code> more than once per frame (from <code>init</code> <i>and</i> <code>render</code>) → the game speeds up. Forgetting <code>gl.DEPTH_BUFFER_BIT</code> in <code>gl.clear</code> with depth test on → everything disappears after the first frame. Putting the camera inside <code>matrixProjection</code> (Lab 12 habit). Changing <code>canvas.width</code> without calling <code>gl.viewport</code> (the picture stays in a corner). Setting only the CSS size (the image gets blurry, because the drawing buffer stays 300×150).</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t1a"><span>The coloured tetrahedron turns at a steady speed; the console shows <code>init... Begin</code> / <code>init... End</code> once.</span></label>
+     <label><input type="checkbox" data-c="t1b"><span>Add <code>console.log(dt)</code> for a moment: values around 0.016 on a 60 Hz screen; switch tabs and come back: no jump.</span></label>
+     <label><input type="checkbox" data-c="t1d"><span>The canvas fills the window with no scroll bars; resize the window: the tetrahedron stays centred and round, not stretched.</span></label>
+     <label><input type="checkbox" data-c="t1c"><span>Remove the depth test line: faces overlap wrongly. Put it back.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">A full-window black canvas with a spinning, depth-correct tetrahedron in perspective.</dd>
+    <dt class="test">Status</dt><dd><span class="good">✓ Done 26 November 2026</span>. Inline shaders, <code>init()</code>, <code>resizeCanvas()</code>, <code>transform()</code>, <code>render()</code> with <code>requestAnimFrame</code> and <code>dt</code> (capped by <code>MAX_DT = 0.05</code> s); full-window canvas that follows the window size. The test tetrahedron was used and then removed in Phase 2, as planned.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 2 -->
+  <article class="phase" id="p2" style="--c:var(--min)">
+   <div class="phead"><h3><span class="n">2</span>Mesh class: sphere polyhedron and ground plane <span class="pill p-min">M1</span></h3><label class="pdone"><input type="checkbox" data-c="p2" data-phase="2"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>A <code>Mesh</code> class that builds a <b>unit sphere as a polyhedron</b> (latitude/longitude grid of triangles) and a square <b>ground plane</b>, each with positions, normals and texture coordinates, uploads them to buffers and draws them.</dd>
+    <dt>Why</dt><dd>M1 requires “each sphere is approximated by a corresponding polyhedron”. Normals are needed for A1 and texture coordinates for A3, so we generate them now and never touch the geometry again.</dd>
+    <dt>Builds on</dt><dd>Phase 1 (loop, locations). The tetrahedron and <code>aColor</code> are removed.</dd>
+    <dt>Files</dt><dd>new <code>mesh.js</code> (add its script tag); <code>katamari-<span class="tn">C2</span>.html</code> (shaders); <code>katamari-<span class="tn">C2</span>.js</code> (globals <code>aNormal</code>, <code>aTexCoord</code>).</dd>
+    <dt>Lab reference</dt><dd class="labref">Class layout of <code>class Object</code> in the gl-rotation lab; buffer calls in <code>init()</code> and <code>onLoadEnd()</code> of the gl-texture lab (three buffers: position, colour, texcoord). <span class="nolab">not in labs</span> generating a sphere; the lat/long method is the simplest one that also gives clean texture coordinates.</dd>
+    <dt>common/</dt><dd><code>vec2</code>, <code>vec3</code>, <code>vec4</code>, <code>flatten</code>.</dd>
+    <dt>Classes</dt><dd><code>Mesh</code>: <code>constructor()</code>, <code>makeSphere(stacks, slices)</code>, <code>#addSpherePoint(i, j, stacks, slices)</code>, <code>makePlane(halfSize, tiles)</code>, <code>loadToGPU()</code>, <code>draw()</code>.</dd>
+    <dt>How</dt><dd>
+     <p>Shaders for this phase colour each pixel by its normal, a quick visual proof that the normals are right:</p>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>&lt;script id="vertex-shader" type="x-shader/x-vertex"&gt;
+    attribute vec4 aPosition;
+    attribute vec3 aNormal;
+    attribute vec2 aTexCoord;
+
+    uniform mat4 uModelView;
+    uniform mat4 uProjection;
+
+    varying vec3 vNormal;
+    varying vec2 vTexCoord;
+
+    void main() {
+        vNormal = aNormal;
+        vTexCoord = aTexCoord;
+        gl_Position = uProjection * uModelView * aPosition;
+    }
+&lt;/script&gt;
+
+&lt;script id="fragment-shader" type="x-shader/x-fragment"&gt;
+    precision mediump float;
+
+    varying vec3 vNormal;
+    varying vec2 vTexCoord;
+
+    void main() {
+        // Debug colour: show the normal as a colour (x -&gt; red, y -&gt; green, z -&gt; blue).
+        // A correct sphere looks smooth with no seams; the plane is a single light green.
+        gl_FragColor = vec4(0.5 * normalize(vNormal) + 0.5, 1.0);
+        // To check texture coordinates instead:  gl_FragColor = vec4(vTexCoord, 0.0, 1.0);
+    }
+&lt;/script&gt;</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Mesh class to store the triangles of one shape and their WebGL buffers.
+// The game needs only two meshes: a unit sphere (used for every ball and the sky) and the ground plane.
+class Mesh {
+    // Arrays for storing all triangle data (like triangleVertices / triangleTexCoords in the labs)
+    vertices;    // vec4 positions
+    normals;     // vec3 unit normals, one per vertex
+    texCoords;   // vec2 texture coordinates, one per vertex
+    // WebGL buffer ids
+    bufferVertexId;
+    bufferNormalId;
+    bufferTexCoordId;
+
+    constructor() {
+        this.vertices = new Array();
+        this.normals = new Array();
+        this.texCoords = new Array();
+    }
+
+    // Build a polyhedron that approximates a sphere of radius 1 centred at the origin.
+    // stacks: number of horizontal bands (latitude), slices: number of cuts around the y-axis (longitude).
+    makeSphere(stacks, slices) {
+        for (var i = 0; i &lt; stacks; i++) {
+            for (var j = 0; j &lt; slices; j++) {
+                // Two triangles for the small quad between latitudes i, i+1 and longitudes j, j+1
+                this.#addSpherePoint(i,     j,     stacks, slices);
+                this.#addSpherePoint(i + 1, j,     stacks, slices);
+                this.#addSpherePoint(i + 1, j + 1, stacks, slices);
+                this.#addSpherePoint(i,     j,     stacks, slices);
+                this.#addSpherePoint(i + 1, j + 1, stacks, slices);
+                this.#addSpherePoint(i,     j + 1, stacks, slices);
+            }
+        }
+    }
+
+    #addSpherePoint(i, j, stacks, slices) {
+        var theta = i * Math.PI / stacks;         // 0 at the north pole, PI at the south pole
+        var phi = j * 2.0 * Math.PI / slices;     // angle around the y-axis, 0 to 2 PI
+        var x = Math.sin(theta) * Math.cos(phi);
+        var y = Math.cos(theta);
+        var z = Math.sin(theta) * Math.sin(phi);
+        this.vertices.push(vec4(x, y, z, 1.0));
+        this.normals.push(vec3(x, y, z));          // on a unit sphere the normal equals the position
+        this.texCoords.push(vec2(j / slices, i / stacks));
+    }
+
+    // Build a square at y = 0 from -halfSize to +halfSize. The texture repeats `tiles` times per side.
+    makePlane(halfSize, tiles) {
+        var corners = [
+            vec4(-halfSize, 0.0, -halfSize, 1.0),
+            vec4(-halfSize, 0.0,  halfSize, 1.0),
+            vec4( halfSize, 0.0,  halfSize, 1.0),
+            vec4( halfSize, 0.0, -halfSize, 1.0)
+        ];
+        var uvs = [vec2(0.0, 0.0), vec2(0.0, tiles), vec2(tiles, tiles), vec2(tiles, 0.0)];
+        // Two triangles, listed corner by corner as in the labs' triangleVertices arrays
+        var order = [0, 1, 2, 0, 2, 3];
+        for (var k = 0; k &lt; order.length; k++) {
+            this.vertices.push(corners[order[k]]);
+            this.normals.push(vec3(0.0, 1.0, 0.0));
+            this.texCoords.push(uvs[order[k]]);
+        }
+    }
+
+    // Load the triangle data into the GPU (same calls as in init() of the labs)
+    loadToGPU() {
+        this.bufferVertexId = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVertexId);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(this.vertices), gl.STATIC_DRAW);
+
+        this.bufferNormalId = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferNormalId);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(this.normals), gl.STATIC_DRAW);
+
+        this.bufferTexCoordId = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferTexCoordId);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(this.texCoords), gl.STATIC_DRAW);
+    }
+
+    // Connect this mesh's buffers to the shader attributes and draw its triangles.
+    // Attribute pointers are global WebGL state, so they must be set again for every mesh.
+    draw() {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVertexId);
+        gl.vertexAttribPointer(aPosition, 4, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(aPosition);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferNormalId);
+        gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(aNormal);
+
+        // The GLSL compiler removes unused attributes and then getAttribLocation returns -1
+        if (aTexCoord != -1) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferTexCoordId);
+            gl.vertexAttribPointer(aTexCoord, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(aTexCoord);
+        }
+
+        gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length);
+    }
+}</pre></div>
+     <p>In <code>init()</code> build one sphere mesh and one plane mesh; in <code>render()</code> draw the plane with <code>matrixModelview = matrixView</code> and the sphere above it with <code>mult(matrixView, translate(0, 1, 0))</code>. 24 stacks × 48 slices = 6 912 vertices per sphere (checked), smooth enough and cheap.</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Forgetting <code>vertexAttribPointer</code> after binding the second mesh's buffer (the plane then draws with the sphere's data). Calling <code>vertexAttribPointer(-1, …)</code> for an attribute the shader doesn't use (<code>INVALID_VALUE</code>): that's what the <code>!= -1</code> guard is for. Building a separate mesh per sphere: one unit sphere scaled per object is enough.</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t2a"><span><code>sphereMesh.vertices.length</code> = <code>sphereMesh.normals.length</code> = <code>sphereMesh.texCoords.length</code> = 6912 in the console.</span></label>
+     <label><input type="checkbox" data-c="t2b"><span>Sphere shows smooth colour bands (top green, +x red, +z blue), no gaps or seams; the plane is one flat light-green colour.</span></label>
+     <label><input type="checkbox" data-c="t2c"><span>Temporarily draw with <code>gl.LINE_STRIP</code> instead of <code>gl.TRIANGLES</code>: the facets of the polyhedron are visible (good footage for the video).</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">A normal-coloured ball resting above a large flat plane.</dd>
+    <dt class="test">Status</dt><dd><span class="good">✓ Done 26 November 2026</span>. New <code>mesh.js</code> with class <code>Mesh</code> (<code>makeSphere</code>, <code>#addSpherePoint</code>, <code>makePlane</code>, <code>loadToGPU</code>, <code>draw</code>); sphere 24 × 48 = 6912 vertices, plane 120 m × 120 m (<code>PLANE_HALF_SIZE = 60</code>). Seen in the browser: smooth normal-coloured ball on a light-green plane. Test camera changed so the ball is at the bottom centre: <code>FOVY = 90</code> (team choice, a wide view), eye (0, 4, 4), at (0, 1.5, −6). A field of view this wide stretches shapes a little near the screen edges. The black area above the horizon is the empty background until the sky in Phase 9; the ball looks flat until lighting in Phase 7.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 3 -->
+  <article class="phase" id="p3" style="--c:var(--min)">
+   <div class="phead"><h3><span class="n">3</span>Scene: random non-intersecting spheres on the plane <span class="pill p-min">M1</span></h3><label class="pdone"><input type="checkbox" data-c="p3" data-phase="3"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>A <code>Sphere</code> class (position, radius, model matrix, overlap test, draw) and <code>placeSpheres()</code>, which scatters <code>SPHERE_COUNT</code> spheres of random radii on the plane without any two intersecting. A temporary overview camera shows the whole scene.</dd>
+    <dt>Why</dt><dd>Completes M1. The radii must differ, because B2 needs smaller spheres to pick up and larger ones to bounce off (the PDF sketch also shows mixed sizes).</dd>
+    <dt>Builds on</dt><dd>Phase 2 (<code>sphereMesh</code>, <code>planeMesh</code>).</dd>
+    <dt>Files</dt><dd>new <code>sphere.js</code>; <code>katamari-<span class="tn">C2</span>.js</code> (constants, <code>placeSpheres</code>, <code>countOverlaps</code>, <code>setModelView</code>, drawing in <code>render</code>).</dd>
+    <dt>Lab reference</dt><dd class="labref">Model matrix built with <code>mult(translate(…), scalem(…))</code> in <code>transform()</code> of the gl-rotation lab; class fields/constructor style of <code>class Object</code>. <span class="nolab">not in labs</span> random placement (rejection sampling).</dd>
+    <dt>common/</dt><dd><code>translate</code>, <code>scalem</code>, <code>mult</code>, <code>subtract</code>, <code>length</code>, <code>vec3</code>, <code>lookAt</code>, <code>perspective</code>.</dd>
+    <dt>Classes</dt><dd><code>Sphere</code>: <code>constructor(position, radius)</code>, <code>getModelMatrix()</code>, <code>intersects(otherPosition, otherRadius)</code>, <code>draw(modelMatrix)</code>.</dd>
+    <dt>How</dt><dd>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Sphere class for every ball in the scene: the free spheres, the attachments and the sky.
+class Sphere {
+    position;   // vec3 centre in world coordinates (metres)
+    radius;     // radius in metres
+    // Added in Phase 7 and 8: materialAmbient, materialDiffuse, materialSpecular, shininess, texture
+
+    constructor(position, radius) {
+        this.position = position;
+        this.radius = radius;
+    }
+
+    // Model matrix: scale the unit sphere to the radius, then move it to the position
+    getModelMatrix() {
+        return mult(translate(this.position), scalem(this.radius, this.radius, this.radius));
+    }
+
+    // True if this sphere overlaps a sphere at otherPosition with otherRadius
+    intersects(otherPosition, otherRadius) {
+        return length(subtract(this.position, otherPosition)) &lt; this.radius + otherRadius;
+    }
+
+    // Draw with the shared unit-sphere mesh. modelMatrix is optional (attachments pass their own).
+    draw(modelMatrix) {
+        if (modelMatrix === undefined) {
+            modelMatrix = this.getModelMatrix();
+        }
+        setModelView(modelMatrix);
+        sphereMesh.draw();
+    }
+}</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Scene size (metres). The sky in Phase 9 uses the same radius, so define it now.
+const SKY_RADIUS = 60.0;
+const PLANE_HALF_SIZE = SKY_RADIUS;   // must be &gt;= SKY_RADIUS so the ground meets the sky everywhere
+const PLAY_MARGIN = 2.0;              // free space kept between the spheres and the sky
+// Random spheres
+const SPHERE_COUNT = 40;
+const SPHERE_MIN_RADIUS = 0.3;
+const SPHERE_MAX_RADIUS = 3.0;
+const PLAYER_RADIUS = 1.0;            // starting radius of the katamari core
+const START_GAP = 3.0;                // no sphere closer than this to the start position
+// Polyhedron resolution of the unit sphere
+const SPHERE_STACKS = 24;
+const SPHERE_SLICES = 48;
+
+var sphereMesh;      // Mesh: unit sphere shared by every ball
+var planeMesh;       // Mesh: ground plane
+var spheres = [];    // free Sphere objects lying on the plane
+
+// Place SPHERE_COUNT spheres at random positions on the plane so that no two of them intersect.
+// Rejection sampling: pick a random position and radius, throw it away if it overlaps.
+function placeSpheres() {
+    spheres = [];
+    var attempts = 0;
+    while (spheres.length &lt; SPHERE_COUNT &amp;&amp; attempts &lt; 10000) {
+        attempts++;
+        var r = SPHERE_MIN_RADIUS + Math.random() * (SPHERE_MAX_RADIUS - SPHERE_MIN_RADIUS);
+        var angle = Math.random() * 2.0 * Math.PI;
+        // sqrt() spreads the points evenly over the disc instead of crowding the centre
+        var dist = Math.sqrt(Math.random()) * (SKY_RADIUS - PLAY_MARGIN - r);
+        // y = r: the sphere rests on the plane
+        var candidate = new Sphere(vec3(dist * Math.cos(angle), r, dist * Math.sin(angle)), r);
+
+        var free = !candidate.intersects(vec3(0.0, PLAYER_RADIUS, 0.0), PLAYER_RADIUS + START_GAP);
+        for (var k = 0; free &amp;&amp; k &lt; spheres.length; k++) {
+            if (candidate.intersects(spheres[k].position, spheres[k].radius)) {
+                free = false;
+            }
+        }
+        if (free) {
+            spheres.push(candidate);
+        }
+    }
+    console.log("placeSpheres: " + spheres.length + " spheres after " + attempts + " attempts");
+}
+
+// Test helper for the console: must return 0
+function countOverlaps() {
+    var n = 0;
+    for (var i = 0; i &lt; spheres.length; i++) {
+        for (var j = i + 1; j &lt; spheres.length; j++) {
+            if (spheres[i].intersects(spheres[j].position, spheres[j].radius)) {
+                n++;
+            }
+        }
+    }
+    return n;
+}</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// In init(), after initShaders and the attribute/uniform locations:
+sphereMesh = new Mesh();
+sphereMesh.makeSphere(SPHERE_STACKS, SPHERE_SLICES);
+sphereMesh.loadToGPU();
+planeMesh = new Mesh();
+planeMesh.makePlane(PLANE_HALF_SIZE, 1.0);
+planeMesh.loadToGPU();
+placeSpheres();
+
+// Send the model-view matrix of one object to the shader (extended in Phase 7)
+function setModelView(modelMatrix) {
+    matrixModelview = mult(matrixView, modelMatrix);
+    gl.uniformMatrix4fv(uModelView, false, flatten(matrixModelview));
+}
+
+// In render(), after transform():
+gl.uniformMatrix4fv(uProjection, false, flatten(matrixProjection));
+setModelView(mat4());               // the plane is already in world coordinates
+planeMesh.draw();
+for (var i = 0; i &lt; spheres.length; i++) {
+    spheres[i].draw();
+}
+
+// In transform(), a temporary overview camera high above the scene:
+matrixProjection = perspective(60, canvas.width / canvas.height, 0.1, 3.0 * SKY_RADIUS);
+matrixView = lookAt(vec3(0.0, 70.0, 70.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));</pre></div>
+     <p>Spheres are placed inside a circle of radius <code>SKY_RADIUS − PLAY_MARGIN</code>, because the skybox in Phase 9 will be the border. In a test run, 40 spheres fit in about 50 attempts with zero overlaps.</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Checking overlap with the centres only (must be <code>distance &lt; r1 + r2</code>); placing spheres at <code>y = 0</code> (they'd be half underground); an endless <code>while</code> loop if the count or radii are too large (the <code>attempts</code> limit prevents it); a global named <code>scale</code> or <code>length</code>.</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t3a"><span><code>countOverlaps()</code> returns 0 after several reloads.</span></label>
+     <label><input type="checkbox" data-c="t3b"><span>Every reload gives a new layout; sizes clearly vary; no sphere sits on the start point (0, 0).</span></label>
+     <label><input type="checkbox" data-c="t3c"><span>Console says <code>placeSpheres: 40 spheres …</code> (if fewer, reduce the count or radii).</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">From high above: a large plane dotted with 40 normal-coloured spheres of different sizes, none touching.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 4 -->
+  <article class="phase" id="p4" style="--c:var(--min)">
+   <div class="phead"><h3><span class="n">4</span>Player and third-person camera <span class="pill p-min">M2</span></h3><label class="pdone"><input type="checkbox" data-c="p4" data-phase="4"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>A <code>Player</code> (the katamari) that extends <code>Sphere</code>, and a <code>Camera</code> that each frame computes a <code>lookAt</code> view from behind and above the player, looking at a point ahead of it, with distances proportional to the katamari's size.</dd>
+    <dt>Why</dt><dd>M2: the perspective view must be “set and changed” so the player appears at the bottom centre, like a wider behind-the-back third-person view. Scaling the camera with <code>effectiveRadius()</code> keeps that framing as the katamari grows in Phase 11. “Changed” is covered in two places, both rebuilt every frame in <code>transform()</code>: the <b>projection</b> (aspect ratio follows the window, near plane follows the katamari's size) and the <b>view</b> (follows the player's position, the mouse yaw/height and the size). Say this in a comment above <code>transform()</code> and in the video.</dd>
+    <dt>Builds on</dt><dd>Phase 3 (<code>Sphere</code>, scene).</dd>
+    <dt>Files</dt><dd>new <code>player.js</code>, new <code>camera.js</code>; <code>katamari-<span class="tn">C2</span>.js</code> (globals <code>player</code>, <code>camera</code>, camera constants, <code>transform()</code>).</dd>
+    <dt>Lab reference</dt><dd class="labref"><code>perspective(…, canvas.width / canvas.height, …)</code> in <code>transform()</code> of the gl-rotation lab; class style of <code>class Object</code>. <span class="nolab">not in labs</span> <code>lookAt</code> follow camera and <code>extends</code> (plain JavaScript inheritance, one level).</dd>
+    <dt>common/</dt><dd><code>lookAt</code>, <code>perspective</code>, <code>radians</code>, <code>add</code>, <code>scale</code>, <code>vec3</code>, <code>vec4</code>, <code>mult</code>.</dd>
+    <dt>Classes</dt><dd><code>Player extends Sphere</code>: <code>constructor</code>, <code>effectiveRadius()</code>. <code>Camera</code>: <code>constructor</code>, <code>getForward()</code>, <code>getRight()</code>, <code>getViewMatrix(target, radius)</code>.</dd>
+    <dt>How</dt><dd>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Player class: the katamari. It is a Sphere that can move, roll and collect other spheres.
+// Fields are added phase by phase; every one is listed here with its unit.
+class Player extends Sphere {
+    velocity;      // vec3, metres per second (Phase 6)
+    orientation;   // mat4, rotation accumulated while rolling (Phase 10)
+    attachments;   // array of { sphere, localOffset, localRotation } (Phase 11)
+    totalVolume;   // cubic metres: core plus all attachments (Phase 11)
+
+    constructor(position, radius) {
+        super(position, radius);
+        this.velocity = vec3(0.0, 0.0, 0.0);
+        this.orientation = mat4();
+        this.attachments = new Array();
+        this.totalVolume = 4.0 / 3.0 * Math.PI * Math.pow(radius, 3);
+    }
+
+    // Radius of a single ball with the same total volume.
+    // Used for the camera distance, the rolling speed and the "smaller / larger" test.
+    effectiveRadius() {
+        return Math.cbrt(3.0 * this.totalVolume / (4.0 * Math.PI));
+    }
+}</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Camera settings, measured in katamari radii so the view keeps its shape as the ball grows
+const FOVY = 60.0;                 // vertical field of view in degrees (a "wider" third-person view)
+const NEAR_FACTOR = 0.1;           // near clipping plane = 0.1 ball radii (grows with the katamari)
+const FAR = 3.0 * SKY_RADIUS;      // far clipping plane, metres: must see the far side of the sky
+const CAMERA_DISTANCE = 6.0;       // how far behind the ball
+const CAMERA_HEIGHT = 4.0;         // how high above the ball
+const CAMERA_AHEAD = 6.0;          // how far in front of the ball the camera looks
+
+// Camera class: third-person camera that stays behind and above the player
+class Camera {
+    yaw;             // degrees around the y-axis; 0 looks along -z (changed by the mouse in Phase 5)
+    heightFactor;    // height above the ball, in ball radii (changed by the mouse in Phase 5)
+    distanceFactor;  // distance behind the ball, in ball radii
+    aheadFactor;     // look-at point in front of the ball, in ball radii
+
+    constructor() {
+        this.yaw = 0.0;
+        this.heightFactor = CAMERA_HEIGHT;
+        this.distanceFactor = CAMERA_DISTANCE;
+        this.aheadFactor = CAMERA_AHEAD;
+    }
+
+    // Unit vector pointing forward along the ground (MV.js trigonometry needs radians())
+    getForward() {
+        return vec3(Math.sin(radians(this.yaw)), 0.0, -Math.cos(radians(this.yaw)));
+    }
+
+    // Unit vector pointing to the right of forward, along the ground
+    getRight() {
+        return vec3(Math.cos(radians(this.yaw)), 0.0, Math.sin(radians(this.yaw)));
+    }
+
+    // View matrix that keeps the target at the bottom centre of the screen
+    getViewMatrix(target, radius) {
+        var forward = this.getForward();
+        var eye = add(target, add(scale(-this.distanceFactor * radius, forward),
+                                  vec3(0.0, this.heightFactor * radius, 0.0)));
+        var at = add(target, scale(this.aheadFactor * radius, forward));
+        return lookAt(eye, at, vec3(0.0, 1.0, 0.0));
+    }
+}
+
+// In transform(): both matrices are set again every frame (M2: "set and changed")
+var radius = player.effectiveRadius();
+// Projection changes with the window (aspect) and with the katamari's size (near plane).
+// A near plane that grows with the ball keeps the depth buffer precise when the camera is far away.
+matrixProjection = perspective(FOVY, canvas.width / canvas.height, NEAR_FACTOR * radius, FAR);
+// View changes with the player's position, the mouse (Phase 5) and the size
+matrixView = camera.getViewMatrix(player.position, radius);</pre></div>
+     <p>Create <code>player = new Player(vec3(0.0, PLAYER_RADIUS, 0.0), PLAYER_RADIUS)</code> and <code>camera = new Camera()</code> in <code>init()</code>; draw the player after the spheres with <code>player.draw()</code>. With <code>FOVY = 60</code> and factors 6 / 4 / 6 the ball's centre lands at screen y ≈ −0.47 (bottom quarter) for <b>any</b> radius (computed with MV.js).</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Fixed camera offsets in metres (the ball would fill the screen once it grows); <code>up</code> parallel to the view direction (<code>lookAt</code> throws); forgetting to update <code>matrixView</code> every frame; a far plane too short for the scene (<code>FAR</code> must exceed twice the sky radius).</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t4a"><span>The NDC check below prints x ≈ 0, y ≈ −0.47.</span></label>
+     <label><input type="checkbox" data-c="t4b"><span>After moving the player and multiplying <code>totalVolume</code> by 27 in the console, the check prints the same numbers and the ball looks the same size on screen while the world looks smaller.</span></label>
+     <label><input type="checkbox" data-c="t4c"><span><code>printm(matrixProjection)</code> in the console gives different numbers before and after the volume ×27 step and after resizing the window (the projection really changes).</span></label></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Console check: where is the ball on the screen? (normalized device coordinates, -1 .. 1)
+var c = mult(matrixProjection, mult(matrixView, vec4(player.position, 1.0)));
+console.log("x =", c[0] / c[3], " y =", c[1] / c[3]);
+// Expected with the constants above: x = 0, y about -0.47 (bottom centre).
+
+// Move the ball and grow it, then repeat the check: the numbers must stay the same.
+player.position = vec3(20.0, 1.0, -10.0);
+player.totalVolume *= 27;        // effective radius x3</pre></div></dd>
+    <dt>Expected result</dt><dd class="expect">Third-person view: the normal-coloured player ball at the bottom centre, spheres and plane stretching ahead toward the horizon.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 5 -->
+  <article class="phase" id="p5" style="--c:var(--min)">
+   <div class="phead"><h3><span class="n">5</span>Mouse rotates the view around the player <span class="pill p-min">M3</span></h3><label class="pdone"><input type="checkbox" data-c="p5" data-phase="5"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>Mouse drag: horizontal movement changes <code>camera.yaw</code> (orbit around the player), vertical movement changes <code>camera.heightFactor</code> within limits.</dd>
+    <dt>Why</dt><dd>M3: “rotate the scene effectively around the player by using a mouse”. The camera's yaw also defines “forward” for the keyboard in Phase 6.</dd>
+    <dt>Builds on</dt><dd>Phase 4 (<code>Camera</code>).</dd>
+    <dt>Files</dt><dd><code>katamari-<span class="tn">C2</span>.js</code> (globals, three handlers); <code>katamari-<span class="tn">C2</span>.html</code> (change the <code>#controls</code> text from Phase 1 to “Drag the mouse to rotate the view”).</dd>
+    <dt>Lab reference</dt><dd class="labref">Handler style <code>window.onkeydown = onKeyDown;</code> and <code>function onKeyDown(e)</code> in the gl-rotation lab; the angle-increment idea of <code>ANGLE_INCREMENT</code>. <span class="nolab">not in labs</span> mouse events; same assignment style applied to <code>onmousedown</code>/<code>onmousemove</code>/<code>onmouseup</code>.</dd>
+    <dt>common/</dt><dd>None new (the camera already uses <code>radians</code>).</dd>
+    <dt>Functions</dt><dd><code>onMouseDown(e)</code>, <code>onMouseUp(e)</code>, <code>onMouseMove(e)</code>; globals <code>mouseDown</code>, <code>lastMouseX</code>, <code>lastMouseY</code>.</dd>
+    <dt>How</dt><dd>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>const MOUSE_SENSITIVITY = 0.3;    // degrees of yaw per pixel dragged
+const HEIGHT_SENSITIVITY = 0.01;  // ball radii of camera height per pixel dragged
+const CAMERA_HEIGHT_MIN = 1.5;    // keeps the camera above the ground
+const CAMERA_HEIGHT_MAX = 8.0;    // keeps the view from looking straight down (lookAt would fail)
+
+var mouseDown = false;
+var lastMouseX = 0;
+var lastMouseY = 0;
+
+// In init(), after the canvas is found (same assignment style as window.onkeydown in the labs):
+canvas.onmousedown = onMouseDown;
+window.onmouseup = onMouseUp;       // window: releasing outside the canvas also ends the drag
+window.onmousemove = onMouseMove;
+
+function onMouseDown(e) {
+    mouseDown = true;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+}
+
+function onMouseUp(e) {
+    mouseDown = false;
+}
+
+function onMouseMove(e) {
+    if (!mouseDown) {
+        return;
+    }
+    // Horizontal drag orbits the camera around the player
+    camera.yaw += (e.clientX - lastMouseX) * MOUSE_SENSITIVITY;
+    // Vertical drag raises or lowers the camera, within limits
+    camera.heightFactor -= (e.clientY - lastMouseY) * HEIGHT_SENSITIVITY;
+    camera.heightFactor = Math.min(Math.max(camera.heightFactor, CAMERA_HEIGHT_MIN), CAMERA_HEIGHT_MAX);
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+}</pre></div>
+     <p>No <code>render()</code> call is needed in the handlers (the labs needed one because they had no loop): the next frame already uses the new yaw.</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Attaching <code>onmouseup</code> only to the canvas (drag gets “stuck” when released outside); letting <code>heightFactor</code> grow without a limit (view straight down → <code>lookAt</code> throws); rotating the world model matrices instead of moving the camera.</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t5a"><span>Dragging left/right circles the camera 360° around the ball; the ball stays at the bottom centre the whole time.</span></label>
+     <label><input type="checkbox" data-c="t5b"><span>Dragging up/down raises/lowers the view and stops at the limits; no console error even when dragging far.</span></label>
+     <label><input type="checkbox" data-c="t5c"><span>Releasing the button outside the canvas ends the drag.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">The scene can be orbited smoothly around the player with the mouse.</dd>
+   </dl>
+  </article>
+
+  <div class="ms-band">◆ Minimum requirements done · <span>M1–M3 work on <code>main</code>. Tag it and record a short screen capture for the video.</span></div>
+
+  <!-- ---------------- PHASE 6 -->
+  <article class="phase" id="p6" style="--c:var(--reqa)">
+   <div class="phead"><h3><span class="n">6</span>Keyboard: slide, slow down, stop <span class="pill p-a">A2</span></h3><label class="pdone"><input type="checkbox" data-c="p6" data-phase="6"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>WASD and arrow keys push the player relative to the camera. The player has a velocity; friction shrinks it every frame so the ball glides to a stop when no key is held.</dd>
+    <dt>Why</dt><dd>A2. Movement relative to the camera keeps “up” meaning “away from the camera” after the view has been rotated with the mouse.</dd>
+    <dt>Builds on</dt><dd>Phase 4 (<code>Player</code>), Phase 5 (<code>camera.yaw</code>), Phase 1 (<code>dt</code>).</dd>
+    <dt>Files</dt><dd><code>player.js</code> (<code>update</code>), <code>katamari-<span class="tn">C2</span>.js</code> (constants, <code>keysDown</code>, handlers, <code>getInputDirection</code>, <code>update(dt)</code> called from <code>render()</code> before drawing); <code>katamari-<span class="tn">C2</span>.html</code> (<code>#controls</code> text: “W A S D / arrows: move · drag mouse: rotate view”).</dd>
+    <dt>Lab reference</dt><dd class="labref"><code>onKeyDown(e)</code> with <code>e.key</code> values <code>'ArrowUp'</code>… in the gl-rotation lab. <span class="nolab">not in labs</span> holding keys (needs <code>onkeyup</code>) and velocity/friction.</dd>
+    <dt>common/</dt><dd><code>add</code>, <code>subtract</code>, <code>scale</code>, <code>length</code>, <code>normalize</code>, <code>vec3</code>.</dd>
+    <dt>Functions</dt><dd><code>onKeyDown(e)</code>, <code>onKeyUp(e)</code>, <code>getInputDirection()</code>, <code>update(dt)</code>; <code>Player.update(dt, direction)</code>.</dd>
+    <dt>How</dt><dd>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Keys currently held down, e.g. keysDown["w"] == true. Lower case so Caps Lock does not matter.
+var keysDown = {};
+
+window.onkeydown = onKeyDown;
+window.onkeyup = onKeyUp;
+window.onblur = function () { keysDown = {}; };   // forget keys if the window loses focus
+
+function onKeyDown(e) {
+    keysDown[e.key.toLowerCase()] = true;
+    // Stop the arrow keys from scrolling the page
+    if (e.key.startsWith("Arrow")) {
+        e.preventDefault();
+    }
+}
+
+function onKeyUp(e) {
+    keysDown[e.key.toLowerCase()] = false;
+}
+
+// Direction the player wants to go, relative to the camera, so "up" always means "away from the camera".
+function getInputDirection() {
+    var forward = camera.getForward();
+    var right = camera.getRight();
+    var direction = vec3(0.0, 0.0, 0.0);
+    if (keysDown["w"] || keysDown["arrowup"])    { direction = add(direction, forward); }
+    if (keysDown["s"] || keysDown["arrowdown"])  { direction = subtract(direction, forward); }
+    if (keysDown["d"] || keysDown["arrowright"]) { direction = add(direction, right); }
+    if (keysDown["a"] || keysDown["arrowleft"])  { direction = subtract(direction, right); }
+    return direction;
+}
+
+// Game logic for one frame, called from render() before drawing
+function update(dt) {
+    player.update(dt, getInputDirection());
+}</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Movement constants
+const ACCELERATION = 20.0;   // m/s^2 while a key is held
+const FRICTION = 1.5;        // 1/s: the speed shrinks by the factor exp(-FRICTION * dt) every frame
+const MAX_SPEED = 10.0;      // m/s
+const STOP_SPEED = 0.05;     // m/s: below this, with no key held, the ball stops completely
+
+    // Player method. dt: time step in seconds, direction: vec3 on the ground (may be zero).
+    update(dt, direction) {
+        if (length(direction) &gt; 0.0) {
+            // Propel: accelerate in the pressed direction. normalize() is safe here (length &gt; 0).
+            this.velocity = add(this.velocity, scale(ACCELERATION * dt, normalize(direction)));
+        }
+        // Friction: slow down smoothly; the same result at any frame rate
+        this.velocity = scale(Math.exp(-FRICTION * dt), this.velocity);
+        if (length(this.velocity) &lt; STOP_SPEED &amp;&amp; length(direction) == 0.0) {
+            this.velocity = vec3(0.0, 0.0, 0.0);
+        }
+        // Limit the top speed
+        if (length(this.velocity) &gt; MAX_SPEED) {
+            this.velocity = scale(MAX_SPEED / length(this.velocity), this.velocity);
+        }
+        // Slide: move by velocity * dt
+        this.position = add(this.position, scale(dt, this.velocity));
+    }</pre></div>
+     <p>With these numbers the ball stops about 3 s after the keys are released (simulated with MV.js).</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Moving the ball inside <code>onKeyDown</code> (speed would depend on the keyboard repeat rate); <code>normalize</code> of a zero direction when W and S are pressed together (NaN, guarded by the length test); friction as <code>velocity *= 0.98</code> per frame (depends on frame rate); reading <code>keysDown</code> inside <code>Player</code> (pass the direction in instead, so the class stays independent of input).</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t6a"><span>W moves away from the camera, S toward it, A/D sideways; arrow keys do the same and the page does not scroll.</span></label>
+     <label><input type="checkbox" data-c="t6b"><span>Rotate the view 90° with the mouse, press W: the ball still moves away from the camera.</span></label>
+     <label><input type="checkbox" data-c="t6c"><span>Release all keys: the ball slows smoothly and <code>player.velocity</code> becomes exactly <code>[0, 0, 0]</code>.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">The ball slides across the plane (without turning yet), the camera follows, and it glides to a halt.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 7 -->
+  <article class="phase" id="p7" style="--c:var(--reqa)">
+   <div class="phead"><h3><span class="n">7</span>Fixed light and materials <span class="pill p-a">A1</span></h3><label class="pdone"><input type="checkbox" data-c="p7" data-phase="7"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>Blinn-Phong lighting per fragment with one point light fixed in the world, and an ambient/diffuse/specular material plus shininess per sphere, for the plane and for the player.</dd>
+    <dt>Why</dt><dd>A1. Lighting also makes the 3D shape and rolling readable, and B4 later only has to move <code>lightPosition</code>.</dd>
+    <dt>Builds on</dt><dd>Phase 2 (normals), Phase 3 (<code>setModelView</code>, <code>Sphere</code>), Phase 4 (<code>matrixView</code> separate from the projection).</dd>
+    <dt>Files</dt><dd><code>katamari-<span class="tn">C2</span>.html</code> (shaders replace the debug ones), <code>katamari-<span class="tn">C2</span>.js</code> (light globals, locations, <code>setModelView</code>, <code>setMaterial</code>), <code>sphere.js</code> (material fields, <code>setMaterial</code> call in <code>draw</code>).</dd>
+    <dt>Lab reference</dt><dd class="labref">Uniform setup pattern (<code>getUniformLocation</code> in <code>init</code>, set in <code>render</code>) from all three labs; the unused <code>lightVector</code> field in Lab 10/Lab 12's <code>class Object</code> shows lighting was planned there. <span class="nolab">not in labs</span> the lighting model itself. We use the Angel &amp; Shreiner formulation, the same textbook <code>common/MV.js</code> comes from (<code>normalMatrix</code> exists in MV.js for exactly this). Check your lecture slides and match their uniform names if they differ.</dd>
+    <dt>common/</dt><dd><code>normalMatrix(m, true)</code>, <code>mult</code> (matrix × vec4 for the light, vec4 × vec4 for light × material), <code>flatten</code>, <code>vec4</code>.</dd>
+    <dt>Functions</dt><dd><code>setModelView(modelMatrix)</code> (extended), <code>setMaterial(ambient, diffuse, specular, shininess)</code>; <code>Sphere</code> gains <code>materialAmbient</code>, <code>materialDiffuse</code>, <code>materialSpecular</code>, <code>shininess</code>.</dd>
+    <dt>How</dt><dd>
+     <p>All lighting is computed in <b>eye coordinates</b> (camera at the origin), which matches the labs' model-view matrix. The light is fixed in the world, so each frame it is moved into eye coordinates with the view matrix only. These shaders were compiled in Chromium with our <code>common/initShaders.js</code>: no errors.</p>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>&lt;script id="vertex-shader" type="x-shader/x-vertex"&gt;
+    attribute vec4 aPosition;
+    attribute vec3 aNormal;
+    attribute vec2 aTexCoord;
+
+    uniform mat4 uModelView;      // view * model
+    uniform mat4 uProjection;
+    uniform mat3 uNormalMatrix;   // normalMatrix(modelView, true) from MV.js
+    uniform vec4 uLightPosition;  // light position already in camera (eye) coordinates
+
+    // Vectors for the lighting calculation, interpolated across each triangle
+    varying vec3 vNormal;
+    varying vec3 vLight;
+    varying vec3 vEye;
+    varying vec2 vTexCoord;
+
+    void main() {
+        // Vertex position in eye coordinates (the camera is at the origin there)
+        vec3 pos = (uModelView * aPosition).xyz;
+        vNormal = uNormalMatrix * aNormal;
+        vLight = uLightPosition.xyz - pos;   // from the surface towards the light
+        vEye = -pos;                         // from the surface towards the camera
+        vTexCoord = aTexCoord;               // used in Phase 8
+        gl_Position = uProjection * uModelView * aPosition;
+    }
+&lt;/script&gt;
+
+&lt;script id="fragment-shader" type="x-shader/x-fragment"&gt;
+    precision mediump float;
+
+    varying vec3 vNormal;
+    varying vec3 vLight;
+    varying vec3 vEye;
+    varying vec2 vTexCoord;
+
+    // Light colour x material colour, computed in JavaScript with MV.js mult()
+    uniform vec4 uAmbientProduct;
+    uniform vec4 uDiffuseProduct;
+    uniform vec4 uSpecularProduct;
+    uniform float uShininess;     // Phong exponent: larger = smaller, sharper highlight
+
+    void main() {
+        vec3 N = normalize(vNormal);
+        vec3 L = normalize(vLight);
+        vec3 E = normalize(vEye);
+        vec3 H = normalize(L + E);            // halfway vector (Blinn-Phong)
+
+        float Kd = max(dot(L, N), 0.0);       // diffuse: surface facing the light is brighter
+        float Ks = pow(max(dot(N, H), 0.0), uShininess);   // specular highlight
+        if (dot(L, N) &lt; 0.0) {
+            Ks = 0.0;                         // no highlight on the dark side
+        }
+
+        vec4 color = uAmbientProduct + Kd * uDiffuseProduct + Ks * uSpecularProduct;
+        color.a = 1.0;
+        gl_FragColor = color;
+    }
+&lt;/script&gt;</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Fixed light source in WORLD coordinates (w = 1.0: a point light). Animated in Phase 14.
+var lightPosition = vec4(30.0, 40.0, 20.0, 1.0);
+var lightAmbient  = vec4(0.25, 0.25, 0.25, 1.0);
+var lightDiffuse  = vec4(1.0, 1.0, 1.0, 1.0);
+var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+
+// Uniform locations (get them in init() with gl.getUniformLocation, like uCTM in the labs)
+var uNormalMatrix, uLightPosition, uAmbientProduct, uDiffuseProduct, uSpecularProduct, uShininess;
+
+// Replace setModelView from Phase 3: also send the normal matrix
+function setModelView(modelMatrix) {
+    matrixModelview = mult(matrixView, modelMatrix);
+    gl.uniformMatrix4fv(uModelView, false, flatten(matrixModelview));
+    // MV.js: inverse transpose of the model-view; true = return the upper-left mat3
+    gl.uniformMatrix3fv(uNormalMatrix, false, flatten(normalMatrix(matrixModelview, true)));
+}
+
+// Send one material. MV.js mult() of two vec4 multiplies them component by component.
+function setMaterial(ambient, diffuse, specular, shininess) {
+    gl.uniform4fv(uAmbientProduct, flatten(mult(lightAmbient, ambient)));
+    gl.uniform4fv(uDiffuseProduct, flatten(mult(lightDiffuse, diffuse)));
+    gl.uniform4fv(uSpecularProduct, flatten(mult(lightSpecular, specular)));
+    gl.uniform1f(uShininess, shininess);
+}
+
+// In render(), once per frame after transform():
+// the light is fixed in the world, so move it into eye coordinates with the view matrix only
+gl.uniform4fv(uLightPosition, flatten(mult(matrixView, lightPosition)));
+
+// In the Sphere constructor: a random, matte or glossy material per sphere
+this.materialAmbient  = vec4(Math.random(), Math.random(), Math.random(), 1.0);
+this.materialDiffuse  = this.materialAmbient;
+this.materialSpecular = vec4(0.6, 0.6, 0.6, 1.0);
+this.shininess = 10.0 + Math.random() * 90.0;
+// and at the start of Sphere.draw():
+setMaterial(this.materialAmbient, this.materialDiffuse, this.materialSpecular, this.shininess);</pre></div>
+     <p>Give the plane and the player their own materials with a <code>setMaterial(…)</code> call before drawing them. Mix glossy (shininess ≈ 100) and matte (≈ 5–10) spheres so the difference shows in the video.</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Sending the light in world coordinates while the normals are in eye coordinates (the light then “follows the camera” and is no longer fixed); using the model-view instead of the normal matrix for normals (wrong under scaling); <code>aTexCoord</code> unused now → location −1 (the <code>Mesh.draw</code> guard handles it); forgetting <code>color.a = 1.0</code>.</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t7a"><span>Each sphere has a bright side, a dark side and a highlight, all facing the same light direction.</span></label>
+     <label><input type="checkbox" data-c="t7b"><span>Orbit the camera with the mouse: the lit sides stay on the same side of the world (the light is fixed).</span></label>
+     <label><input type="checkbox" data-c="t7c"><span>Glossy and matte spheres look different; the plane is lit evenly with no black areas.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">Coloured, shaded spheres with specular highlights on a lit plane.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 8 -->
+  <article class="phase" id="p8" style="--c:var(--reqa)">
+   <div class="phead"><h3><span class="n">8</span>Textures on every model <span class="pill p-a">A3</span></h3><label class="pdone"><input type="checkbox" data-c="p8" data-phase="8"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>Load several image textures at start-up, give each sphere one, the plane a repeating grass texture and the player its own; multiply the lit colour by the texture colour in the fragment shader.</dd>
+    <dt>Why</dt><dd>A3: “appropriate textures to all your models”. A visible pattern on the player is also what makes the rolling in Phase 10 visible.</dd>
+    <dt>Builds on</dt><dd>Phase 2 (texture coordinates), Phase 7 (lit colour).</dd>
+    <dt>Files</dt><dd>new folder <code>textures/</code> (copy the BMPs from <code>Lab 12/…/obj-files/textures/</code>); <code>katamari-<span class="tn">C2</span>.html</code> (fragment shader); <code>katamari-<span class="tn">C2</span>.js</code> (<code>TEXTURE_FILES</code>, <code>texArray</code>, <code>loadTexture</code>); <code>sphere.js</code> (<code>texture</code> field, <code>bindTexture</code> in <code>draw</code>).</dd>
+    <dt>Lab reference</dt><dd class="labref">the gl-texture lab: the checkerboard <code>texArray</code> loop, <code>createTexture</code>, <code>activeTexture(gl.TEXTURE0)</code>, <code>bindTexture</code>, <code>texImage2D</code>, <code>generateMipmap</code> in <code>init()</code>, <code>uniform1i(uImage0, 0)</code> in <code>render()</code>, and <code>onTexImageLaod</code> for the image upload. The only change is that the image path is fixed instead of chosen with a file input.</dd>
+    <dt>common/</dt><dd><code>vec2</code>, <code>flatten</code> (texcoord buffer already built in Phase 2). Textures themselves are plain WebGL: common/ has no texture helper.</dd>
+    <dt>Functions</dt><dd><code>loadTexture(fileName)</code> returns a WebGL texture; <code>Sphere.texture</code>.</dd>
+    <dt>How</dt><dd>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Texture files (copied from the gl-texture lab: obj-files/textures/, all power-of-two BMP images)
+const TEXTURE_FILES = [
+    "textures/nat-grass.bmp",      // 0: ground plane
+    "textures/nat-cloudsky.bmp",   // 1: sky (Phase 9)
+    "textures/art-satin-red.bmp",  // 2: player core
+    "textures/art-wood.bmp",       // 3.. : free spheres, chosen at random
+    "textures/nat-marble.bmp",
+    "textures/art-plaid.bmp",
+    "textures/nat-cowspots.bmp",
+    "textures/art-bricks.bmp"
+];
+const PLANE_TILES = 12;    // how many times the grass repeats along each side of the plane
+
+var textures = [];         // WebGL texture objects, same order as TEXTURE_FILES
+var texArray;              // 64 x 64 checkerboard shown until an image has loaded (gl-texture lab)
+var uImage0;               // sampler uniform location (same name as in the gl-texture lab)
+
+// Create one texture: show the checkerboard first, replace it when the image file arrives.
+function loadTexture(fileName) {
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 64, 64, 0, gl.RGBA, gl.UNSIGNED_BYTE, texArray);
+    gl.generateMipmap(gl.TEXTURE_2D);
+
+    var image = new Image();
+    image.onload = function () {
+        // Bind this texture again: another one may be bound by now
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        // Create mipmap images from the newly loaded image (needs power-of-two sizes in WebGL 1)
+        gl.generateMipmap(gl.TEXTURE_2D);
+    };
+    image.src = fileName;
+    return texture;
+}
+
+// In init(): build texArray exactly as in the gl-texture lab, then
+for (var i = 0; i &lt; TEXTURE_FILES.length; i++) {
+    textures.push(loadTexture(TEXTURE_FILES[i]));
+}
+uImage0 = gl.getUniformLocation(program, "uImage0");
+gl.activeTexture(gl.TEXTURE0);   // we only ever use texture unit 0
+gl.uniform1i(uImage0, 0);        // the sampler reads from unit 0
+
+// Before drawing any object:
+gl.bindTexture(gl.TEXTURE_2D, this.texture);   // e.g. at the start of Sphere.draw()</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>    // fragment shader: add the sampler and multiply the lit colour by the texture colour
+    uniform sampler2D uImage0;
+
+    void main() {
+        vec4 texColor = texture2D(uImage0, vTexCoord);
+        ...
+        vec4 color = (uAmbientProduct + Kd * uDiffuseProduct) * texColor + Ks * uSpecularProduct;
+        color.a = 1.0;
+        gl_FragColor = color;
+    }</pre></div>
+     <p>Load textures <b>before</b> <code>placeSpheres()</code> so each new sphere can pick <code>textures[3 + Math.floor(Math.random() * (textures.length - 3))]</code>. Rebuild the plane with <code>makePlane(PLANE_HALF_SIZE, PLANE_TILES)</code> so the grass repeats (WebGL's default wrap mode is <code>REPEAT</code>, allowed because the images are power-of-two). Make the materials lighter (e.g. diffuse <code>mix(vec4(1,1,1,1), colour, 0.3)</code>) or the texture is darkened by the colour.</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd><code>gl.enable(gl.TEXTURE_2D)</code> (Lab 12 line; invalid in WebGL); loading textures inside <code>render()</code>; non-power-of-two images (WebGL 1 refuses mipmaps and REPEAT → black models); testing from <code>file://</code> (browser blocks the images); forgetting to bind the right texture before <b>each</b> draw.</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t8a"><span>Network tab: every <code>textures/*.bmp</code> has status 200.</span></label>
+     <label><input type="checkbox" data-c="t8b"><span>Plane, every sphere and the player are textured; nothing is black, nothing shows the checkerboard after loading.</span></label>
+     <label><input type="checkbox" data-c="t8c"><span>Lighting still visible on top of the textures (highlights, dark side).</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">Grassy ground, wooden/marble/plaid/brick spheres and a red satin player, all shaded by the light.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 9 -->
+  <article class="phase" id="p9" style="--c:var(--reqa)">
+   <div class="phead"><h3><span class="n">9</span>Spherical textured skybox <span class="pill p-a">A4</span></h3><label class="pdone"><input type="checkbox" data-c="p9" data-phase="9"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>A huge sphere of radius <code>SKY_RADIUS</code> centred at the origin, textured with the sky image and drawn without lighting. The camera is kept inside it.</dd>
+    <dt>Why</dt><dd>A4: a spherical skybox with a texture that acts as the border of the scene. B3 bounces the katamari off it later.</dd>
+    <dt>Builds on</dt><dd>Phase 3 (<code>Sphere</code>, <code>SKY_RADIUS</code>), Phase 8 (textures).</dd>
+    <dt>Files</dt><dd><code>katamari-<span class="tn">C2</span>.html</code> (<code>uUseLighting</code>), <code>katamari-<span class="tn">C2</span>.js</code> (<code>skySphere</code>, drawing order), <code>camera.js</code> (keep the eye inside the sky).</dd>
+    <dt>Lab reference</dt><dd class="labref">Same texture path as Phase 8 (Lab 12). <span class="nolab">not in labs</span> skybox; it is simply our <code>Sphere</code> reused at a large radius.</dd>
+    <dt>common/</dt><dd><code>length</code>, <code>scale</code>.</dd>
+    <dt>How</dt><dd>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Fragment shader: one more uniform, checked at the start of main()
+//     uniform float uUseLighting;   // 1.0 = Blinn-Phong, 0.0 = texture only (the sky)
+//     if (uUseLighting &lt; 0.5) { gl_FragColor = texColor; return; }
+
+var skySphere;     // Sphere with radius SKY_RADIUS centred at the origin
+var uUseLighting;
+
+// In init():
+skySphere = new Sphere(vec3(0.0, 0.0, 0.0), SKY_RADIUS);
+skySphere.texture = textures[1];
+uUseLighting = gl.getUniformLocation(program, "uUseLighting");
+
+// In render(), first thing after the uniforms of the frame:
+gl.uniform1f(uUseLighting, 0.0);   // the sky is not lit by the sun
+skySphere.draw();
+gl.uniform1f(uUseLighting, 1.0);
+// ... then the plane, the free spheres and the player as before
+
+// In Camera.getViewMatrix(), before lookAt(): never let the camera leave the sky
+const CAMERA_MAX_FRACTION = 0.95;   // fraction of SKY_RADIUS the camera may reach
+if (length(eye) &gt; CAMERA_MAX_FRACTION * SKY_RADIUS) {
+    eye = scale(CAMERA_MAX_FRACTION * SKY_RADIUS / length(eye), eye);
+}</pre></div>
+     <p>Why it works without extra tricks: culling is off, so the inside of the sphere is drawn; the plane (half-size = <code>SKY_RADIUS</code>) covers the whole circle where the sky meets the ground, so the lower half of the sky is hidden under it; <code>FAR = 3 × SKY_RADIUS</code> covers the far wall even from the edge.</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>A plane smaller than the sky radius (a gap opens at the horizon); a far plane shorter than 2 × <code>SKY_RADIUS</code> (the sky is clipped into a hole); lighting the sky (its normals point outward, so it would be black on the inside); the camera leaving the sky when the ball is near the edge.</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t9a"><span>Orbit 360° at several places: no black background visible anywhere, the horizon is closed.</span></label>
+     <label><input type="checkbox" data-c="t9b"><span>Drive to the edge (the ball can still pass through until Phase 13): the camera stays inside, the sky does not disappear.</span></label>
+     <label><input type="checkbox" data-c="t9c"><span>If the sky looks upside down, use <code>1 - i / stacks</code> for the second texture coordinate and note it in a comment.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">The scene sits inside a cloudy sky dome that meets the grass at the horizon.</dd>
+   </dl>
+  </article>
+
+  <div class="ms-band">◆ Requirements A done · <span>Minimum (M1–M3) and A1–A4 work on <code>main</code>. Tag and record footage.</span></div>
+
+  <!-- ---------------- PHASE 10 -->
+  <article class="phase" id="p10" style="--c:var(--reqb)">
+   <div class="phead"><h3><span class="n">10</span>Rolling instead of sliding <span class="pill p-b">B1</span></h3><label class="pdone"><input type="checkbox" data-c="p10" data-phase="10"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>The player keeps an <code>orientation</code> matrix. Every frame it rotates by <code>distance / radius</code> radians around <code>cross(up, velocity)</code>, which is rolling without slipping. The model matrix uses this orientation.</dd>
+    <dt>Why</dt><dd>B1 (first half). Attachments in Phase 11 rotate with this same matrix.</dd>
+    <dt>Builds on</dt><dd>Phase 6 (velocity), Phase 8 (texture, to see the rotation).</dd>
+    <dt>Files</dt><dd><code>player.js</code> (<code>getModelMatrix</code> override, end of <code>update</code>).</dd>
+    <dt>Lab reference</dt><dd class="labref">Rotation matrices combined with <code>mult(rotateX(…), matrixModelview)</code> in <code>transform()</code> of the gl-rotation lab; here with <code>rotate(angle, axis)</code> about any axis. <span class="nolab">not in labs</span> rolling physics.</dd>
+    <dt>common/</dt><dd><code>rotate</code>, <code>cross</code>, <code>mult</code>, <code>translate</code>, <code>scalem</code>, <code>length</code>.</dd>
+    <dt>How</dt><dd>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>    // Player.getModelMatrix() override: the core turns with the accumulated orientation
+    getModelMatrix() {
+        return mult(translate(this.position),
+                    mult(this.orientation, scalem(this.radius, this.radius, this.radius)));
+    }
+
+    // At the end of Player.update(): rolling without slipping.
+    // The ball turns by (distance / radius) radians about the axis perpendicular to "up" and the motion.
+        var distance = length(this.velocity) * dt;
+        if (distance &gt; 0.0) {
+            var axis = cross(vec3(0.0, 1.0, 0.0), this.velocity);
+            var angle = distance / this.effectiveRadius() * 180.0 / Math.PI;   // rotate() wants degrees
+            // Pre-multiply: the axis is in world coordinates
+            this.orientation = mult(rotate(angle, axis), this.orientation);
+        }</pre></div>
+     <p>Checked: moving along +x, the top of the ball turns toward +x. After 3 600 frames of rolling the matrix stayed a clean rotation (error 3 × 10⁻¹⁴), so no re-orthonormalisation is needed.</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Post-multiplying (<code>mult(orientation, rotate(…))</code>) → the ball rolls around its own tilted axes; passing radians to <code>rotate()</code> (needs degrees); computing the axis when the velocity is zero (guarded by <code>distance &gt; 0</code>; <code>rotate</code> normalizes the axis itself).</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t10a"><span>The texture rolls forward in the direction of motion for all four keys and after rotating the camera.</span></label>
+     <label><input type="checkbox" data-c="t10b"><span>The rotation stops exactly when the ball stops; no spinning in place.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">The player visibly rolls, not slides, and slows to a stop.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 11 -->
+  <article class="phase" id="p11" style="--c:var(--reqb)">
+   <div class="phead"><h3><span class="n">11</span>Collisions: attach smaller, bounce off larger, grow <span class="pill p-b">B2</span></h3><label class="pdone"><input type="checkbox" data-c="p11" data-phase="11"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>Each frame, test the player core <i>and every attachment</i> against every free sphere. A touched sphere smaller than the katamari is stuck on (stored in the katamari's local frame) and its volume is added; a larger one makes the katamari bounce.</dd>
+    <dt>Why</dt><dd>B2, the core of the game. Growth feeds the camera (Phase 4) and the rolling radius (Phase 10).</dd>
+    <dt>Builds on</dt><dd>Phases 3 (<code>intersects</code>), 4 (<code>effectiveRadius</code>), 6 (velocity), 10 (<code>orientation</code>).</dd>
+    <dt>Files</dt><dd><code>player.js</code> (<code>attach</code>, <code>getAttachmentPosition</code>, <code>getAttachmentModelMatrix</code>, <code>getParts</code>, <code>bounceOff</code>); <code>katamari-<span class="tn">C2</span>.js</code> (<code>ATTACH_RATIO</code>, <code>RESTITUTION</code>, <code>checkCollisions</code>, drawing attachments).</dd>
+    <dt>Lab reference</dt><dd class="labref">Matrix composition as in <code>transform()</code> of Lab 10. <span class="nolab">not in labs</span> collision detection and response; sphere–sphere distance tests and reflecting the velocity about the contact normal are the simplest standard methods.</dd>
+    <dt>common/</dt><dd><code>transpose</code>, <code>mult</code> (mat4 × vec4 with w = 0), <code>subtract</code>, <code>add</code>, <code>dot</code>, <code>normalize</code>, <code>scale</code>, <code>length</code>, <code>translate</code>, <code>scalem</code>.</dd>
+    <dt>How</dt><dd>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>    // Stick sphere s to the katamari. The offset is stored in the katamari's own frame,
+    // so it turns with the ball. For a pure rotation matrix, transpose() is the inverse.
+    attach(s) {
+        var inverse = transpose(this.orientation);
+        var offset = mult(inverse, vec4(subtract(s.position, this.position), 0.0));
+        this.attachments.push({
+            sphere: s,
+            localOffset: vec3(offset[0], offset[1], offset[2]),
+            localRotation: inverse      // keeps the texture from jumping at the moment of attaching
+        });
+        // The katamari grows by the volume of the new sphere
+        this.totalVolume += 4.0 / 3.0 * Math.PI * Math.pow(s.radius, 3);
+    }
+
+    // World position of one attachment (w = 0: rotate the offset, do not translate it)
+    getAttachmentPosition(att) {
+        var offset = mult(this.orientation, vec4(att.localOffset, 0.0));
+        return add(this.position, vec3(offset[0], offset[1], offset[2]));
+    }
+
+    // Model matrix of one attachment: it rotates with the ball around the ball's centre
+    getAttachmentModelMatrix(att) {
+        var r = att.sphere.radius;
+        return mult(translate(this.position), mult(this.orientation,
+               mult(translate(att.localOffset), mult(att.localRotation, scalem(r, r, r)))));
+    }
+
+    // Core and attachments as { position, radius } in world coordinates (for collisions)
+    getParts() {
+        var parts = [{ position: this.position, radius: this.radius }];
+        for (var k = 0; k &lt; this.attachments.length; k++) {
+            parts.push({ position: this.getAttachmentPosition(this.attachments[k]),
+                         radius: this.attachments[k].sphere.radius });
+        }
+        return parts;
+    }
+
+    // Bounce off a larger sphere s that touches `part`: reflect the velocity about the
+    // horizontal contact normal and push the katamari out of the overlap.
+    bounceOff(part, s) {
+        var n = subtract(part.position, s.position);
+        n[1] = 0.0;                            // keep the motion on the ground
+        if (length(n) == 0.0) {
+            return;                            // normalize() of a zero vector gives NaN
+        }
+        n = normalize(n);
+        var vn = dot(this.velocity, n);
+        if (vn &lt; 0.0) {                        // only if moving into the sphere
+            this.velocity = subtract(this.velocity, scale((1.0 + RESTITUTION) * vn, n));
+        }
+        var overlap = s.radius + part.radius - length(subtract(part.position, s.position));
+        this.position = add(this.position, scale(overlap + 0.01, n));
+    }</pre></div>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>const ATTACH_RATIO = 1.0;   // a sphere sticks if its radius &lt; ATTACH_RATIO * player.effectiveRadius()
+const RESTITUTION = 0.6;    // 0 = no bounce, 1 = perfectly elastic bounce
+
+// Check the player core and every attachment against every free sphere (Requirement B2)
+function checkCollisions() {
+    var parts = player.getParts();
+    // Walk backwards so splice() does not skip the next sphere
+    for (var i = spheres.length - 1; i &gt;= 0; i--) {
+        var s = spheres[i];
+        for (var k = 0; k &lt; parts.length; k++) {
+            if (s.intersects(parts[k].position, parts[k].radius)) {
+                if (s.radius &lt; ATTACH_RATIO * player.effectiveRadius()) {
+                    player.attach(s);
+                    spheres.splice(i, 1);      // no longer a free sphere
+                } else {
+                    player.bounceOff(parts[k], s);
+                }
+                break;
+            }
+        }
+    }
+}
+
+// update(dt) now becomes:
+function update(dt) {
+    player.update(dt, getInputDirection());
+    checkCollisions();
+}
+
+// Drawing the attachments, at the end of render():
+for (var k = 0; k &lt; player.attachments.length; k++) {
+    var att = player.attachments[k];
+    att.sphere.draw(player.getAttachmentModelMatrix(att));
+}</pre></div>
+     <p>Checked: at the moment of attaching, the attachment's model matrix equals its old one (difference 2 × 10⁻¹⁶), so nothing jumps. A 60-second simulated drive ran with no NaN.</p>
+    </dd>
+    <dt class="avoid">Avoid</dt><dd>Testing only the core (B2 explicitly includes attachments); storing the offset in world coordinates (attachments then don't turn with the ball); removing array items while looping forward; <code>normalize</code> of a zero contact normal; pushing the ball out vertically (keep it on the ground).</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t11a"><span>Rolling into a small sphere: it sticks where it touched, then turns with the ball; <code>player.attachments.length</code> and <code>player.effectiveRadius()</code> increase.</span></label>
+     <label><input type="checkbox" data-c="t11b"><span>Rolling into a large sphere: the ball bounces back, no sticking or shaking when pushing against it.</span></label>
+     <label><input type="checkbox" data-c="t11c"><span>A sphere touched only by an <i>attachment</i> is also picked up or bounced.</span></label>
+     <label><input type="checkbox" data-c="t11d"><span>As the katamari grows, spheres that used to bounce it start sticking; the camera pulls back.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">A playable katamari: it grows by collecting smaller spheres and is pushed back by bigger ones.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 12 -->
+  <article class="phase" id="p12" style="--c:var(--reqb)">
+   <div class="phead"><h3><span class="n">12</span>Believable wobbling <span class="pill p-b">B1</span></h3><label class="pdone"><input type="checkbox" data-c="p12" data-phase="12"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>After every move, raise or lower the katamari so its <b>lowest point</b> (core or any attachment) rests on the ground. As attachments roll underneath, the whole ball bobs and rocks: the lumpy-katamari wobble from the gameplay video.</dd>
+    <dt>Why</dt><dd>B1 (second half): “emulate believable wobbling of katamari”. Done after Phase 11 because without attachments there is nothing to wobble.</dd>
+    <dt>Builds on</dt><dd>Phase 10 (rolling), Phase 11 (<code>getParts</code>).</dd>
+    <dt>Files</dt><dd><code>player.js</code> (<code>settleOnGround</code>), <code>katamari-<span class="tn">C2</span>.js</code> (<code>SETTLE_SPEED</code>, call in <code>update</code>).</dd>
+    <dt>Lab reference</dt><dd class="labref"><span class="nolab">not in labs</span> simplest physical approximation of an uneven ball resting on the floor.</dd>
+    <dt>common/</dt><dd>None new.</dd>
+    <dt>How</dt><dd><div class="cmd"><button class="copy" type="button">Copy</button><pre>const SETTLE_SPEED = 10.0;   // 1/s: how fast the ball follows its new resting height
+
+    // Keep the lowest point of the katamari on the ground (y = 0). Attachments that come
+    // underneath lift the ball and drop it again, so it bobs and rocks as it rolls.
+    settleOnGround(dt) {
+        var parts = this.getParts();
+        var lowest = parts[0].position[1] - parts[0].radius;
+        for (var k = 1; k &lt; parts.length; k++) {
+            lowest = Math.min(lowest, parts[k].position[1] - parts[k].radius);
+        }
+        // Move only part of the way each frame so the motion is smooth, not a jump
+        this.position[1] -= lowest * Math.min(1.0, SETTLE_SPEED * dt);
+    }
+
+// update(dt):
+    player.update(dt, getInputDirection());
+    checkCollisions();
+    player.settleOnGround(dt);</pre></div></dd>
+    <dt class="avoid">Avoid</dt><dd>A fake <code>Math.sin(time)</code> bounce while standing still (not believable); moving the full distance in one frame (jerky); updating <code>position[1]</code> before collisions are resolved.</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t12a"><span>With a few attachments, rolling makes the ball rise and fall rhythmically; with none, it rolls perfectly flat.</span></label>
+     <label><input type="checkbox" data-c="t12b"><span>No attachment ever sinks into the plane; the ball settles when it stops.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">A lumpy katamari that bumps along the ground in time with its rotation.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 13 -->
+  <article class="phase" id="p13" style="--c:var(--reqb)">
+   <div class="phead"><h3><span class="n">13</span>Bounce off the inside of the skybox <span class="pill p-b">B3</span></h3><label class="pdone"><input type="checkbox" data-c="p13" data-phase="13"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>When the furthest point of the katamari reaches the sky sphere, reflect the velocity about the inward normal and move the katamari back inside.</dd>
+    <dt>Why</dt><dd>B3.</dd>
+    <dt>Builds on</dt><dd>Phase 9 (sky), Phase 11 (attachments, <code>RESTITUTION</code>).</dd>
+    <dt>Files</dt><dd><code>player.js</code> (<code>boundingRadius</code>, <code>bounceOffSky</code>), <code>katamari-<span class="tn">C2</span>.js</code> (call in <code>update</code>).</dd>
+    <dt>Lab reference</dt><dd class="labref"><span class="nolab">not in labs</span> same reflection formula as <code>bounceOff</code> in Phase 11.</dd>
+    <dt>common/</dt><dd><code>length</code>, <code>normalize</code>, <code>dot</code>, <code>subtract</code>, <code>scale</code>, <code>add</code>.</dd>
+    <dt>How</dt><dd><div class="cmd"><button class="copy" type="button">Copy</button><pre>    // Largest distance from the centre of the katamari to the outside of any part
+    boundingRadius() {
+        var result = this.radius;
+        for (var k = 0; k &lt; this.attachments.length; k++) {
+            var att = this.attachments[k];
+            result = Math.max(result, length(att.localOffset) + att.sphere.radius);
+        }
+        return result;
+    }
+
+    // Bounce off the inside of the sky sphere (centred at the origin)
+    bounceOffSky() {
+        var reach = length(this.position) + this.boundingRadius();
+        var n = vec3(-this.position[0], 0.0, -this.position[2]);   // points back to the centre
+        if (reach &gt; SKY_RADIUS &amp;&amp; length(n) &gt; 0.0) {
+            n = normalize(n);
+            var vn = dot(this.velocity, n);
+            if (vn &lt; 0.0) {
+                this.velocity = subtract(this.velocity, scale((1.0 + RESTITUTION) * vn, n));
+            }
+            this.position = add(this.position, scale(reach - SKY_RADIUS, n));
+        }
+    }
+
+// update(dt): add after settleOnGround
+    player.bounceOffSky();</pre></div></dd>
+    <dt class="avoid">Avoid</dt><dd>Using only the core radius (attachments would poke through the sky); reflecting when already moving inward (ball gets trapped in the wall).</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t13a"><span>Drive into the sky from several directions at full speed: it always bounces back inside.</span></label>
+     <label><input type="checkbox" data-c="t13b"><span>With large attachments, they never pass through the sky.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">The sky works as a round arena wall.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 14 -->
+  <article class="phase" id="p14" style="--c:var(--reqb)">
+   <div class="phead"><h3><span class="n">14</span>Sun orbit: rising and setting light <span class="pill p-b">B4</span></h3><label class="pdone"><input type="checkbox" data-c="p14" data-phase="14"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>Move <code>lightPosition</code> along a circle over the scene; brightness and colour follow the sun's height (orange and dim near the horizon, white at noon, only ambient at night).</dd>
+    <dt>Why</dt><dd>B4.</dd>
+    <dt>Builds on</dt><dd>Phase 7 (<code>lightPosition</code>, <code>lightDiffuse</code>; the shader already receives the light in eye coordinates every frame).</dd>
+    <dt>Files</dt><dd><code>katamari-<span class="tn">C2</span>.js</code> (constants, <code>sunAngle</code>, lines in <code>update</code>).</dd>
+    <dt>Lab reference</dt><dd class="labref">Angle animated a little each frame like <code>angle = angle + 0.1</code> in <code>render()</code> of the webgl lab, but scaled by <code>dt</code>.</dd>
+    <dt>common/</dt><dd><code>vec4</code>, <code>mix</code>, <code>mult</code> (already used to move the light into eye coordinates).</dd>
+    <dt>How</dt><dd><div class="cmd"><button class="copy" type="button">Copy</button><pre>const SUN_SPEED = 2.0 * Math.PI / 60.0;   // radians per second: one full day in 60 seconds
+const SUN_DISTANCE = 0.8 * SKY_RADIUS;    // radius of the sun's orbit, inside the sky
+const SUN_TILT = 15.0;                     // metres: the orbit is slightly off the x-y plane
+var sunAngle = 0.3;                        // radians: 0 = sunrise (+x), PI/2 = noon, PI = sunset
+
+// In update(dt):
+sunAngle += SUN_SPEED * dt;
+lightPosition = vec4(SUN_DISTANCE * Math.cos(sunAngle), SUN_DISTANCE * Math.sin(sunAngle), SUN_TILT, 1.0);
+// Brightness follows the height of the sun; at night only the ambient light remains
+var daylight = Math.max(Math.sin(sunAngle), 0.0);
+// Orange near the horizon, white at noon: MV.js mix() blends two vectors
+var sunColor = mix(SUN_COLOR_LOW, SUN_COLOR_HIGH, daylight);
+lightDiffuse  = vec4(daylight * sunColor[0], daylight * sunColor[1], daylight * sunColor[2], 1.0);
+lightSpecular = vec4(daylight, daylight, daylight, 1.0);
+
+// with these two constants next to the others
+const SUN_COLOR_LOW  = vec4(1.0, 0.55, 0.25, 1.0);
+const SUN_COLOR_HIGH = vec4(1.0, 1.0, 0.95, 1.0);</pre></div></dd>
+    <dt class="avoid">Avoid</dt><dd>Changing <code>lightDiffuse</code> after the materials were already sent this frame (update the light in <code>update(dt)</code>, before drawing); an orbit so fast it flickers; letting the scene go fully black at night (keep <code>lightAmbient</code>).</dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t14a"><span>Over one minute the lit side of the spheres moves from one side, over the top, to the other.</span></label>
+     <label><input type="checkbox" data-c="t14b"><span>Low sun is orange and dim, noon is bright white, night is dark but visible.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">A day–night cycle lighting the scene.</dd>
+   </dl>
+  </article>
+
+  <div class="ms-band">◆ Requirements B done · <span>All twelve programming requirements work on <code>main</code>. Feature freeze: from here on only fixes, tuning and documentation.</span></div>
+
+  <!-- ---------------- PHASE 15 -->
+  <article class="phase" id="p15" style="--c:var(--doc)">
+   <div class="phead"><h3><span class="n">15</span>Documentation, citations and code quality</h3><label class="pdone"><input type="checkbox" data-c="p15" data-phase="15"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>A full pass over every file: comments for every parameter and constant (meaning and unit), citations for everything we didn't invent, consistent naming, dead code removed. README: Developer Log complete, AI interactions logged, contribution table filled in.</dd>
+    <dt>Why</dt><dd>40% of the grade: documented 20%, readable 10%, OOP 10%. Uncited ideas count as plagiarism under the PDF's rules.</dd>
+    <dt>Builds on</dt><dd>Phases 0–14. Comments are best written in the same commit as the code; this phase is the final check.</dd>
+    <dt>Files</dt><dd>All own files, <code>README.md</code>. Not <code>common/</code>.</dd>
+    <dt>Lab reference</dt><dd class="labref">Comment density of the labs: one comment above almost every WebGL call, file headers crediting Angel &amp; Shreiner and the course.</dd>
+    <dt>How</dt><dd>
+     <ul>
+      <li>Remove the test code (tetrahedron, debug colours, temporary console logs in handlers). Keep <code>init... Begin/End</code>.</li>
+      <li>Every <code>const</code> has a comment with unit and effect; every class field and method has a comment.</li>
+      <li>Cite: common/ (Angel &amp; Shreiner), lab code samples (Araz Yusubov), the lighting model (Angel &amp; Shreiner textbook), every texture file, any AI help (with the Developer Log date).</li>
+      <li>The PDF also asks to cite <b>ideas and algorithms</b> we did not invent. Put one comment next to the code for each: the game idea (Katamari Damacy, gameplay video linked in the PDF); latitude/longitude sphere polyhedron (Phase 2); rejection sampling for random placement (Phase 3); <code>lookAt</code> follow camera (Phase 4); exponential friction <code>exp(-k·dt)</code> (Phase 6); Blinn-Phong with the normal matrix (Phase 7); rolling without slipping, angle = distance / radius (Phase 10); sphere–sphere test and velocity reflection with restitution (Phases 11, 13); <code>requestAnimationFrame</code> with a measured <code>dt</code> (Phase 1). Name the source you actually used (lecture slides, textbook chapter, web page with URL, or AI chat with link).</li>
+      <li>Every function has a short comment saying what it does and what each parameter means, with units (metres, seconds, degrees or radians).</li>
+      <li>Templates are in <a href="#deliver">Docs &amp; submission</a>.</li>
+     </ul>
+    </dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t15a"><span>A teammate who didn't write a file can explain each function from its comments alone.</span></label>
+     <label><input type="checkbox" data-c="t15b"><span>Every image in <code>textures/</code> and every AI interaction appears in a comment and in the README.</span></label>
+     <label><input type="checkbox" data-c="t15c"><span>No console errors or warnings in Chrome and Firefox after 5 minutes of play.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">Code that reads like the lab samples and a README that tells the project's story in date order.</dd>
+   </dl>
+  </article>
+
+  <!-- ---------------- PHASE 16 -->
+  <article class="phase" id="p16" style="--c:var(--doc)">
+   <div class="phead"><h3><span class="n">16</span>Video, presentation and submission <span class="pill p-min">M4</span></h3><label class="pdone"><input type="checkbox" data-c="p16" data-phase="16"> Phase done</label></div>
+   <dl class="f">
+    <dt>What</dt><dd>The ≤ 5-minute video, the presentation slides, the final ZIP and the Blackboard submission.</dd>
+    <dt>Why</dt><dd>M4 is part of the Minimum; the submission must contain the repo URL, the video URL and the ZIP.</dd>
+    <dt>Builds on</dt><dd>Phases 0–15 (footage saved at each milestone).</dd>
+    <dt>Files</dt><dd><code>README.md</code> (video link, final log entries). Video and slides stay out of the repository.</dd>
+    <dt>How</dt><dd>
+     <ul>
+      <li><b>Order:</b> make the slides first. The PDF says the slides also give the general directions for the video, so the video follows the slides' outline.</li>
+      <li><b>Video:</b> explain the program and the approaches (polyhedron sphere, camera, lighting, textures, collisions, wobble), show it working, no full code on screen. Post publicly on a team member's <b>personal Instagram</b> with <code>#ADAUniversity #CSCI2408 #Katamari #weDIDit</code> + one of <code>#Kirpivari #BalBall #Maqnitop</code>.</li>
+      <li><b>Slides:</b> the template provided by the instructor; must cover our <b>Generative AI experience</b> (what helped, what didn't). 10 minutes total including setup and questions, run on our own laptop.</li>
+      <li><b>README:</b> add the clickable repository URL, the clickable video URL, one line on how to run the game (local web server, page name), the last Developer Log entries and the filled-in contribution table (full names, contribution, % adding up to 100).</li>
+      <li><b>Repository contents:</b> <code>git archive</code> puts every tracked file in the ZIP. Run <code>git ls-files</code> first. The assignment PDF, the lab ZIPs, this plan, videos and slides must not be tracked (the PDF may not be shared with third parties). Remove any that are with <code>git rm --cached &lt;file&gt;</code> and commit.</li>
+      <li><b>ZIP:</b> build from <code>main</code>, test in an empty folder exactly like the grader:</li>
+     </ul>
+     <div class="cmd"><button class="copy" type="button">Copy</button><pre>git switch main
+git pull
+git ls-files        # only our code, common/, textures/, README.md, .gitattributes
+git archive --format=zip --output ../katamari-{TEAM}.zip HEAD
+
+# Test it like the grader: unzip into an EMPTY folder, then in that folder
+python3 -m http.server 8000      # Windows: py -m http.server 8000
+# open http://localhost:8000/katamari-{TEAM}.html  (DevTools console open: no errors, no 404s)</pre></div>
+    </dd>
+    <dt class="test">Test</dt><dd><div class="checks">
+     <label><input type="checkbox" data-c="t16a"><span>Video ≤ 5:00, public, all hashtags; link opens in a private window.</span></label>
+     <label><input type="checkbox" data-c="t16b"><span>ZIP named <code>katamari-<span class="tn">C2</span>.zip</code>, contains <code>common/</code>, <code>textures/</code>, all six source files and README, runs from a fresh unzip on another laptop, and contains no assignment PDF, lab files or plan.</span></label>
+     <label><input type="checkbox" data-c="t16e"><span>README has both clickable URLs, run instructions, a complete Developer Log and the contribution table adding up to 100%.</span></label>
+     <label><input type="checkbox" data-c="t16c"><span>Submission has the clickable repo URL, clickable video URL and the ZIP attached.</span></label>
+     <label><input type="checkbox" data-c="t16d"><span>Timed rehearsal fits in 10 minutes.</span></label></div></dd>
+    <dt>Expected result</dt><dd class="expect">Everything submitted; the game runs for the grader without any fixes.</dd>
+   </dl>
+  </article>
+ </div>
+</section>
+
+<!-- ============================================================ TRACE -->
+<section class="band" id="trace">
+ <div class="wrap">
+  <h2>Requirements checklist</h2>
+  <p>Every requirement from the PDF, where it is implemented and how we prove it. Tick a row when it passes on <code>main</code>; the header counts the twelve M/A/B rows.</p>
+  <div class="tablewrap"><table class="stack" id="tracetable">
+   <thead><tr><th></th><th>Requirement</th><th>Status</th><th>Phase</th><th>Files</th><th>Verification</th></tr></thead>
+   <tbody>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_m1" data-req="1" aria-label="M1 done"></td><td data-l="Requirement"><span class="pill p-min">M1</span> plane + random non-intersecting polyhedral spheres</td><td data-l="Status">Mandatory</td><td data-l="Phase">2, 3</td><td data-l="Files">mesh.js, sphere.js, main</td><td data-l="Verification"><code>countOverlaps() == 0</code> over reloads; facets visible with <code>LINE_STRIP</code></td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_m2" data-req="1" aria-label="M2 done"></td><td data-l="Requirement"><span class="pill p-min">M2</span> perspective, player bottom centre, changes with growth</td><td data-l="Status">Mandatory</td><td data-l="Phase">4 (+11)</td><td data-l="Files">camera.js, player.js, main</td><td data-l="Verification">NDC check x ≈ 0, y ≈ −0.47 at any size; <code>matrixProjection</code> differs after growth and after a resize</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_m3" data-req="1" aria-label="M3 done"></td><td data-l="Requirement"><span class="pill p-min">M3</span> mouse rotates scene around player</td><td data-l="Status">Mandatory</td><td data-l="Phase">5</td><td data-l="Files">main, camera.js</td><td data-l="Verification">360° drag, pitch limits, no errors</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_m4" data-req="1" aria-label="M4 done"></td><td data-l="Requirement"><span class="pill p-min">M4</span> video ≤ 5 min on personal public Instagram with hashtags</td><td data-l="Status">Mandatory</td><td data-l="Phase">16</td><td data-l="Files">README (link)</td><td data-l="Verification">Duration, public link in private window, hashtags</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_a1" data-req="1" aria-label="A1 done"></td><td data-l="Requirement"><span class="pill p-a">A1</span> fixed light + materials</td><td data-l="Status">Mandatory for A</td><td data-l="Phase">7</td><td data-l="Files">html shaders, main, sphere.js</td><td data-l="Verification">Lit sides stay put while orbiting; glossy vs matte visible</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_a2" data-req="1" aria-label="A2 done"></td><td data-l="Requirement"><span class="pill p-a">A2</span> keyboard slide; slows and stops</td><td data-l="Status">Mandatory for A</td><td data-l="Phase">6</td><td data-l="Files">player.js, main</td><td data-l="Verification">Velocity reaches exactly 0 after release; camera-relative</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_a3" data-req="1" aria-label="A3 done"></td><td data-l="Requirement"><span class="pill p-a">A3</span> textures on all models</td><td data-l="Status">Mandatory for A</td><td data-l="Phase">8 (+9)</td><td data-l="Files">textures/, main, sphere.js</td><td data-l="Verification">Plane, spheres, player, attachments, sky all textured; 200s in Network tab</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_a4" data-req="1" aria-label="A4 done"></td><td data-l="Requirement"><span class="pill p-a">A4</span> spherical textured skybox as border</td><td data-l="Status">Mandatory for A</td><td data-l="Phase">9</td><td data-l="Files">main, camera.js</td><td data-l="Verification">No background visible from anywhere; closed horizon</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_b1" data-req="1" aria-label="B1 done"></td><td data-l="Requirement"><span class="pill p-b">B1</span> rolling + believable wobble</td><td data-l="Status">Mandatory for B</td><td data-l="Phase">10, 12</td><td data-l="Files">player.js</td><td data-l="Verification">Texture rolls with motion; ball bobs with attachments</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_b2" data-req="1" aria-label="B2 done"></td><td data-l="Requirement"><span class="pill p-b">B2</span> attach smaller (+volume) / bounce larger, by core or attachment</td><td data-l="Status">Mandatory for B</td><td data-l="Phase">11</td><td data-l="Files">player.js, main</td><td data-l="Verification">Attachment count and effective radius grow; bounce from big spheres; attachment-triggered contacts</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_b3" data-req="1" aria-label="B3 done"></td><td data-l="Requirement"><span class="pill p-b">B3</span> bounce off inner skybox</td><td data-l="Status">Mandatory for B</td><td data-l="Phase">13</td><td data-l="Files">player.js</td><td data-l="Verification">Bounces at full speed from all directions, attachments included</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_b4" data-req="1" aria-label="B4 done"></td><td data-l="Requirement"><span class="pill p-b">B4</span> light orbits like the sun</td><td data-l="Status">Mandatory for B</td><td data-l="Phase">14</td><td data-l="Files">main</td><td data-l="Verification">Day–night cycle visible within one minute</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_s1" aria-label="Setup done"></td><td data-l="Requirement">Classroom50 team name = Blackboard; files renamed with team name</td><td data-l="Status">Mandatory (else 0)</td><td data-l="Phase">0</td><td data-l="Files">katamari-<span class="tn">C2</span>.html/.js</td><td data-l="Verification">File names on GitHub; page loads</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_s2" aria-label="Libraries done"></td><td data-l="Requirement">Only common/ libraries from the original repo</td><td data-l="Status">Mandatory</td><td data-l="Phase">0–16</td><td data-l="Files">html script tags</td><td data-l="Verification">Only <code>common/*</code> and our own files in the Network tab</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_s3" aria-label="Commits done"></td><td data-l="Requirement">Meaningful commit every workday; every member has meaningful commits</td><td data-l="Status">Mandatory (coefficient)</td><td data-l="Phase">all</td><td data-l="Files">git history</td><td data-l="Verification">GitHub → Insights → Commits / Contributors weekly</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_s4" aria-label="Comments done"></td><td data-l="Requirement">Comments explain parameters; cite all models, images, ideas, algorithms, AI</td><td data-l="Status">Mandatory (20%)</td><td data-l="Phase">every phase, 15</td><td data-l="Files">all own files</td><td data-l="Verification">Phase 15 tests</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_s5" aria-label="Developer Log done"></td><td data-l="Requirement">README Developer Log in date order + final contribution record (full name, contribution, %)</td><td data-l="Status">Mandatory</td><td data-l="Phase">0 → 16</td><td data-l="Files">README.md</td><td data-l="Verification">No gaps between dates; % sums to 100</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_s6" aria-label="AI log done"></td><td data-l="Requirement">Every AI interaction: tool, input, URL to the interaction, in log and comments</td><td data-l="Status">Mandatory if AI used</td><td data-l="Phase">all</td><td data-l="Files">README.md, code comments</td><td data-l="Verification">Each AI link opens</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_s7" aria-label="OOP done"></td><td data-l="Requirement">Solid OOP; neat readable code</td><td data-l="Status">Mandatory (10% + 10%)</td><td data-l="Phase">2–4, 15</td><td data-l="Files">mesh.js, sphere.js, player.js, camera.js</td><td data-l="Verification">Four classes, inheritance Player → Sphere, no duplicated draw code</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_s8" aria-label="Submission done"></td><td data-l="Requirement">Submission: repo URL, video URL, <code>katamari-<span class="tn">C2</span>.zip</code> runnable on localhost</td><td data-l="Status">Mandatory</td><td data-l="Phase">16</td><td data-l="Files">ZIP</td><td data-l="Verification">Fresh unzip on another laptop runs</td></tr>
+    <tr><td data-l="✓"><input type="checkbox" data-c="r_s9" aria-label="Presentation done"></td><td data-l="Requirement">Presentation in the template, includes Generative AI experience, 10 min</td><td data-l="Status">Mandatory</td><td data-l="Phase">16</td><td data-l="Files">slides (outside repo)</td><td data-l="Verification">Timed rehearsal</td></tr>
+   </tbody>
+  </table></div>
+  <h3>Optional improvements (only after Requirements B and Phase 15)</h3>
+  <p>None of these is required by the PDF. Each is small and stays in the lab style.</p>
+  <ul>
+   <li><span class="pill p-opt">Optional</span> A small unlit “sun” sphere drawn at <code>lightPosition</code> (texture <code>nat-flames.bmp</code>), so the light's orbit is visible in the video.</li>
+   <li><span class="pill p-opt">Optional</span> Sky brightness follows <code>daylight</code> (one more float uniform multiplied into the sky colour).</li>
+   <li><span class="pill p-opt">Optional</span> A larger power-of-two sky image (e.g. 2048×1024) from a free source, cited with its licence; the lab's <code>nat-cloudsky.bmp</code> is only 256×128.</li>
+   <li><span class="pill p-opt">Optional</span> A key (e.g. <code>R</code>) that switches rolling on/off, to demonstrate A2 (slide) and B1 (roll) separately in the presentation.</li>
+   <li><span class="pill p-opt">Optional</span> A text line under the canvas showing the katamari's size (<code>effectiveRadius()</code>) and spheres collected.</li>
+   <li><span class="pill p-opt">Optional</span> A slight sideways tilt proportional to speed, on top of the Phase 12 wobble.</li>
+  </ul>
+ </div>
+</section>
+
+<!-- ============================================================ DELIVERABLES -->
+<section class="band" id="deliver" style="background:var(--panel)">
+ <div class="wrap">
+  <h2>Documentation templates</h2>
+  <p>The PDF requires three kinds of documentation. These templates follow the starter <code>README.md</code> format.</p>
+  <h3>Developer Log entry (README.md, chronological)</h3>
+  <div class="cmd"><button class="copy" type="button">Copy</button><pre>26 November 2026
+---
+**Discussion:** agreed on the file layout (mesh.js, sphere.js, player.js, camera.js, katamari-{TEAM}.js)
+and on the order of the implementation phases.
+**Actions:** renamed katamari.html / katamari.js to katamari-{TEAM}.html / .js, fixed the header comments,
+checked that common/ loads on localhost.
+**Generative AI:** Claude (claude.ai), used to review and restructure the project plan.
+Input: the assignment PDF, the lab code and our first plan. Link: https://claude.ai/share/...
+What we kept / changed: ...</pre></div>
+  <p class="note">The first AI entry should be this plan: log the chats used to make and revise it, with their share links.</p>
+  <h3>Citation comments in code</h3>
+  <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Blinn-Phong lighting: E. Angel and D. Shreiner, Interactive Computer Graphics (the book behind common/MV.js)
+// Texture loading pattern: gl-texture lab code sample by Araz Yusubov (CSCI 2408)
+// Texture image nat-grass.bmp: from the CSCI 2408 gl-texture lab repository, obj-files/textures/
+// Generative AI: Claude (claude.ai), 2 Dec 2026, helped with the rolling axis; see README Developer Log 2 December 2026</pre></div>
+  <h3>Final contribution record (required by the PDF, filled in at the end)</h3>
+  <div class="cmd"><button class="copy" type="button">Copy</button><pre>| **Team member** | **Contribution to the project** | **Estimated %** |
+| {Full Name} | {what this person did, by phase / requirement} | {X}% |
+| {Full Name} | {...} | {X}% |
+| {Full Name} | {...} | {X}% |
+| {Full Name} | {...} | {X}% |</pre></div>
+ </div>
+</section>
+
+<!-- ============================================================ GIT -->
+<section class="band" id="git">
+ <div class="wrap">
+  <h2>Git routine</h2>
+  <div class="two">
+   <div>
+    <ul>
+     <li>One short-lived branch per feature, <b>named after the feature, not the phase number</b> (instructor's rule), e.g. <code>render-loop</code>, <code>sphere-mesh</code>, <code>random-spheres</code>, <code>third-person-camera</code>, <code>mouse-orbit</code>, <code>keyboard-slide</code>, <code>lighting</code>, <code>textures</code>, <code>skybox</code>, <code>rolling</code>, <code>collisions</code>, <code>wobble</code>, <code>sky-bounce</code>, <code>sun-orbit</code>. Merged into <code>main</code> with a Pull Request when its tests pass. Docs-only changes (README) can go straight to <code>main</code>.</li>
+     <li><b>At least one meaningful commit on GitHub every workday</b>: this is a grade coefficient. Small working steps, each with a clear message.</li>
+     <li>Commit messages: <code>Area: what (requirement)</code>, e.g. <code>Collision: test attachments in world space (B2)</code>. Not <code>update</code>, <code>fix</code>, <code>final2</code>.</li>
+     <li>Commit from your own account with your GitHub email (<code>git config --global user.email</code>), otherwise the commits don't count as yours.</li>
+     <li>Never <code>git push --force</code> on <code>main</code>; never commit the video file.</li>
+    </ul>
+   </div>
+   <div class="cmd" style="margin-top:0"><button class="copy" type="button">Copy</button><pre># once per feature
+git switch main
+git pull
+git switch -c lighting
+
+# small working steps, at least one meaningful commit to GitHub every workday
+git add katamari-{TEAM}.html katamari-{TEAM}.js sphere.js
+git commit -m "Lighting: Blinn-Phong shaders and normal matrix (A1)"
+git push -u origin lighting      # afterwards just: git push
+
+# phase finished and its tests pass: open a Pull Request, review, "Create a merge commit"
+git switch main
+git pull
+# when a requirement group is finished, mark that version:
+git tag -a minimum-requirements -m "Phases 0-5: M1-M3 working"
+git push origin minimum-requirements
+# later: requirements-A (after Phase 9), requirements-B (after Phase 14)</pre></div>
+  </div>
+ </div>
+</section>
+
+<!-- ============================================================ OPEN QUESTIONS -->
+<section class="band" id="open">
+ <div class="wrap">
+  <h2>Open questions and assumptions</h2>
+  <p>Places where the materials don't settle the answer. The plan takes the reading shown; confirm the ones marked “ask” with the instructor.</p>
+  <div class="q"><b>1. The functionality weights add up to 80%.</b>Minimum 40% + A 20% + B 20%. The PDF doesn't say what the remaining 20% is. <i>Ask.</i></div>
+  <div class="q"><b>2. “Generated with a chosen radius”.</b>Could mean one radius for all spheres. We use a random radius per sphere in a chosen range, because B2 needs smaller and larger spheres and the PDF sketch shows mixed sizes. Easy to change: set <code>SPHERE_MIN_RADIUS = SPHERE_MAX_RADIUS</code>.</div>
+  <div class="q"><b>3. “Smaller” and “larger” compared with what?</b>We compare a sphere with the katamari's volume-equivalent radius (<code>effectiveRadius()</code>), scaled by <code>ATTACH_RATIO</code>. Comparing with the touching part, or with the core only, are also defensible. Write the choice in a comment.</div>
+  <div class="q"><b>4. Topics not in the provided labs.</b>Sphere generation, lighting, mouse input, held-key input, dt-based motion and collisions are not in <code>codereviews05-07.zip</code>. They may have been covered in lectures or labs not included here (Lab 10's unused <code>lightVector</code> hints at a shading lab). Before Phase 7, check the lecture slides and align uniform names and the lighting formula with them. <i>Check.</i></div>
+  <div class="q"><b>5. Reusing the lab textures.</b>The BMPs come from the course's gl-texture repository. Reusing course material with a citation should be fine, but the PDF only mentions libraries. <i>Ask if unsure.</i></div>
+  <div class="q"><b>6. Names of extra files.</b>The PDF requires the team suffix only on the root <code>.htm</code> and <code>.js</code> files we were given. We leave <code>mesh.js</code>, <code>sphere.js</code>, <code>player.js</code>, <code>camera.js</code> without suffix. <i>Ask if unsure;</i> renaming later only touches four script tags.</div>
+  <div class="q"><b>7. File extension.</b>The PDF says “.htm”, the starter file is <code>katamari.html</code>. We keep <code>.html</code> and only add the suffix.</div>
+  <div class="q"><b>8. Team name.</b>The repository is named “group-10”; our first plan recorded the Blackboard team name as <code>C2</code>. The file names must use the Blackboard name. <i>Check in Blackboard.</i></div>
+  <div class="q"><b>9. Start date of the daily-commit rule.</b>“The first Thursday after the assignment was posted”; the posting date isn't in the PDF. Commit every workday from now on regardless.</div>
+  <div class="q"><b>10. Presentation template and demo-day date.</b>Not in the materials we have. Get them from Blackboard.</div>
+ </div>
+</section>
+
+<section class="band" style="padding-top:0">
+ <div class="wrap">
+  <button class="btn" id="reset" type="button">Reset all ticks in this browser</button>
+ </div>
+</section>
+
+<script>
+{
+const KEY='katamari-c2-techplan-v3';
+// Phases 0-2 are done (26 November 2026), so they start ticked in a new browser
+let st={c:{p0:true,p1:true,p2:true},team:'C2'};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)st=Object.assign(st,s)}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const $=id=>document.getElementById(id);
+const team=()=>(st.team||'C2').replace(/\s+/g,'')||'C2';
+const PHASES=17;
+
+function applyTeam(){
+ document.querySelectorAll('.tn').forEach(e=>e.textContent=team());
+ document.querySelectorAll('pre').forEach(p=>{if(p.dataset.src===undefined)p.dataset.src=p.textContent;p.textContent=p.dataset.src.split('{TEAM}').join(team())});
+}
+function applyChecks(){
+ document.querySelectorAll('input[type=checkbox][data-c]').forEach(cb=>{cb.checked=!!st.c[cb.dataset.c]});
+ document.querySelectorAll('.phase').forEach(ph=>{const cb=ph.querySelector('[data-phase]');ph.classList.toggle('done',!!(cb&&cb.checked))});
+}
+function stats(){
+ let done=0,next=-1;
+ for(let i=0;i<PHASES;i++){if(st.c['p'+i])done++;else if(next<0)next=i}
+ const pct=Math.round(done/PHASES*100);
+ $('sPct').textContent=pct+'%';$('sBar').style.width=pct+'%';
+ const reqs=[...document.querySelectorAll('[data-req]')];
+ $('sReq').textContent=reqs.filter(r=>st.c[r.dataset.c]).length+'/'+reqs.length;
+ if(next<0){$('sNext').textContent='✓';$('sNextL').textContent='all phases done'}
+ else{$('sNext').textContent=next;const h=document.querySelector('#p'+next+' h3');$('sNextL').textContent='next: '+(h?h.textContent.replace(/^\d+/,'').trim().split(/\s(?=M\d|A\d|B\d)/)[0]:'')}
+}
+document.addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.c;if(!id)return;
+ if(e.target.checked)st.c[id]=true;else delete st.c[id];save();applyChecks();stats()});
+document.addEventListener('click',e=>{
+ if(e.target.classList.contains('copy')){const b=e.target,pre=b.parentElement.querySelector('pre');
+  try{navigator.clipboard.writeText(pre.textContent).then(()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1400)},()=>{b.textContent='Select & copy'})}catch(err){b.textContent='Select & copy'}return}
+ if(e.target.id==='reset'){const b=e.target;if(b.dataset.arm){st.c={};save();applyChecks();stats();delete b.dataset.arm;b.textContent='Reset all ticks in this browser'}else{b.dataset.arm='1';b.textContent='Click again to clear every tick';setTimeout(()=>{if(b.dataset.arm){delete b.dataset.arm;b.textContent='Reset all ticks in this browser'}},4000)}}
+});
+$('team').value=team();
+$('team').addEventListener('input',()=>{st.team=$('team').value.trim()||'C2';save();applyTeam()});
+applyTeam();applyChecks();stats();
+}
+</script>
+</body>
+</html>
