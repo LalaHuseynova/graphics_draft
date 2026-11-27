@@ -5,23 +5,20 @@
 */
 
 "use strict";
-// The purpose of "use strict" is to indicate that the code should be executed in "strict mode".
-// With strict mode, you can not, for example, use undeclared variables.
 
 // Mesh class to store the triangles of one shape and their WebGL buffers.
-// The game needs only two meshes: a unit sphere (used for every ball and later the sky)
-// and the ground plane. Each ball just scales the same unit sphere by its radius.
 class Mesh {
-    // Arrays for storing all triangle data (like triangleVertices / triangleTexCoords in the labs).
     // Three vertices in a row make one triangle, no index buffer (same as the labs).
     vertices;    // vec4 positions (x, y, z, 1)
-    normals;     // vec3 unit normals, one per vertex, needed for lighting later (A1)
-    texCoords;   // vec2 texture coordinates (s, t), one per vertex, needed for textures later (A3)
+    normals;     // vec3 unit normals, one per vertex, needed for lighting later 
+    texCoords;   // vec2 texture coordinates (s, t), one per vertex, needed for textures later 
+
     // WebGL buffer ids, one buffer for each array
     bufferVertexId;
     bufferNormalId;
     bufferTexCoordId;
 
+    // Arrays for storing all triangle data.
     constructor() {
         this.vertices = new Array();
         this.normals = new Array();
@@ -29,9 +26,8 @@ class Mesh {
     }
 
     // Build a polyhedron that looks like a sphere of radius 1 centred at the origin.
-    // stacks: number of horizontal bands from top to bottom (latitude),
-    // slices: number of cuts around the y-axis (longitude).
-    // More stacks and slices = rounder ball, but more triangles to draw.
+    // stacks- number of horizontal bands from top to bottom (latitude),
+    // slices- number of cuts around the y-axis (longitude).
     makeSphere(stacks, slices) {
         for (var i = 0; i < stacks; i++) {
             for (var j = 0; j < slices; j++) {
@@ -47,9 +43,9 @@ class Mesh {
         }
     }
 
-    // Add one point of the sphere grid: row i (0..stacks), column j (0..slices)
+    // Add one point of the sphere grid
     #addSpherePoint(i, j, stacks, slices) {
-        var theta = i * Math.PI / stacks;    // radians, 0 at the top (north pole), PI at the bottom
+        var theta = i * Math.PI / stacks;    // radians, 0 at the top, PI at the bottom
         var phi = j * 2.0 * Math.PI / slices;    // radians, angle around the y-axis, 0 to 2 PI
         var x = Math.sin(theta) * Math.cos(phi);
         var y = Math.cos(theta);
@@ -62,7 +58,6 @@ class Mesh {
     }
 
     // Build a flat square on the ground (y = 0) from -halfSize to +halfSize metres in x and z.
-    // tiles: how many times a texture will repeat along each side (used in Phase 8).
     makePlane(halfSize, tiles) {
         var corners = [
             vec4(-halfSize, 0.0, -halfSize, 1.0),
@@ -81,7 +76,7 @@ class Mesh {
         }
     }
 
-    // Load the triangle data into the GPU (same calls as in init() of the labs).
+    // Load the triangle data into the GPU.
     // Called once after makeSphere() or makePlane(), because the shape never changes.
     loadToGPU() {
         // Create a buffer for the positions, bind it, and copy the data in.
