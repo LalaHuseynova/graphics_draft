@@ -19,7 +19,7 @@ Submitted in partial fulfillment of the requirements of the course.
     
     // position (x, y, z, 1)
     attribute vec4 aPosition;
-
+     
     // unit normal
     attribute vec3 aNormal;  
 
@@ -37,22 +37,22 @@ Submitted in partial fulfillment of the requirements of the course.
         vNormal = aNormal;
         vTexCoord = aTexCoord;
 
-        // Move the vertex to clip space using the matrices from right to left.
+    // Move the vertex to clip space using the matrices from right to left.
         gl_Position = uProjection * uModelView * aPosition;
     }
 </script>
 
 <script id="fragment-shader" type="x-shader/x-fragment">
-    // precision of float values.
+    // Set how many bits used for float values. Will not work otherwise.
     precision mediump float;
 
-    // get data from the vertex shader.
+    // get data from the vertex shader
     varying vec3 vNormal;
     varying vec2 vTexCoord;
 
     void main() {
-        // use normals as RGB colors
-        // convert normal values from [-1, 1] to [0, 1]
+        // use normals as RGB colors until lighting is added
+        // Convert normal values from [-1, 1] to [0, 1]
         gl_FragColor = vec4(0.5 * normalize(vNormal) + 0.5, 1.0);
     }
 </script>
@@ -62,18 +62,14 @@ Submitted in partial fulfillment of the requirements of the course.
 <script type="text/javascript" src="common/initShaders.js"></script>
 <script type="text/javascript" src="common/MV.js"></script>
 <!-- Copyright (c) <2012-2015> Ed Angel and Dave Shreiner -->
-
-<!-- Our own classes, always before the main file that uses them -->
 <script type="text/javascript" src="mesh.js"></script>
 <script type="text/javascript" src="katamari-C2.js"></script>
 </head>
 
-<body>
-    <!-- No width/height here: resizeCanvas() in katamari-C2.js sets them to the window size -->
-    <canvas id="gl-canvas">
+<body style="background-color: #888888;">
+     <canvas id="gl-canvas">
         Sorry ... your browser doesn't support the HTML5 canvas element.
     </canvas>
-    <!-- Controls are added in Phase 5 (mouse) and Phase 6 (keyboard) -->
     <div id="controls">Katamari: ground plane and sphere</div>
 </body>
 </html>
