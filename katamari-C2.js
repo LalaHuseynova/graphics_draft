@@ -66,6 +66,7 @@ const FAR = 3.0 * SKY_RADIUS;
 window.onload = init;
 
 function init() {
+    console.log("init... Start");
     canvas = document.getElementById("gl-canvas");
     
     gl = WebGLUtils.setupWebGL(canvas);
