@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Katamari Technical Plan</title>
+<title>Katamari C2 Plan</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 /* Same visual language as our first plan: teal header, Fredoka headings, Nunito Sans text, JetBrains Mono code.
@@ -86,6 +86,8 @@ tr:last-child td{border-bottom:0}
 .ms-band{display:flex;gap:10px;align-items:center;border:2px dashed var(--coral);border-radius:12px;padding:12px 16px;margin:22px 0;color:var(--coral);font-weight:800}
 .ms-band span{color:var(--ink);font-weight:600}
 details{border:1px solid var(--line);border-radius:10px;padding:4px 14px;margin:10px 0;background:var(--bg)}
+.donephases{border-color:var(--good);margin:22px 0}
+.donephases>summary{color:var(--good);font-size:17px}
 summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:center}
 .good{color:var(--good);font-weight:800}.bad{color:var(--warn);font-weight:800}
 .tree{font:13.5px/1.6 "JetBrains Mono",monospace;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;white-space:pre;overflow-x:auto;color:var(--ink)}
@@ -100,6 +102,42 @@ summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:
 .btn{font:600 15px "Nunito Sans",sans-serif;min-height:44px;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
 .btn:hover{background:var(--panel)}
 .btn:focus-visible{outline:3px solid var(--coral);outline-offset:1px}
+
+.mem{display:flex;flex-wrap:wrap;gap:12px;font-size:14px;color:var(--mute)}
+.mem span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.kv{--c:light-dark(#1a7f92,#4fb3c6)}.lv{--c:light-dark(#d9622b,#f08a55)}.gv{--c:light-dark(#3d5fb8,#8aa6ff)}.fv{--c:light-dark(#a23667,#e47aa9)}.av{--c:light-dark(#4b5961,#a8b8bf)}
+.board{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--bg)}
+.scroll{overflow-x:auto}
+.grid{display:grid;grid-template-columns:96px repeat(15,minmax(42px,1fr));min-width:800px}
+.grid>div{border-bottom:1px solid var(--line);padding:5px 2px;min-height:38px;display:flex;flex-wrap:wrap;gap:3px;align-content:center;justify-content:center}
+.grid .lane{justify-content:flex-start;font-weight:700;font-size:14px;padding-left:4px}
+.grid .dh{flex-direction:column;font-size:12.5px;line-height:1.15;color:var(--mute);text-align:center;min-height:50px}
+.grid .dh b{font-size:15px;color:var(--ink)}
+.grid .bugc{background:light-dark(#fff1e6,#2a1d14)}
+.grid .tod{outline:2px solid #ffd07a;outline-offset:-2px}
+.grid .dl{background:light-dark(#fde6e2,#2e1715)}
+.chip{width:13px;height:13px;border-radius:50%;border:2px solid var(--c);background:transparent;cursor:pointer;padding:0}
+.chip.done{background:var(--c)}
+.gms{font:700 11.5px/1.1 "Nunito Sans",sans-serif;color:var(--coral);text-align:center}
+.day{display:grid;grid-template-columns:140px minmax(0,1fr);gap:18px;padding:16px 0;border-top:1px solid var(--line)}
+.day.bug .when b{color:var(--coral)}
+.when b{display:block;font:600 27px/1 Fredoka,sans-serif}
+.when span{display:block;color:var(--mute);font-size:14px;margin-top:4px}
+.dtitle{font-weight:800;font-size:17px;margin-bottom:6px}
+.dbadge{display:inline-block;color:var(--coral);border:1px solid var(--coral);border-radius:8px;font-size:13.5px;font-weight:800;padding:2px 9px;margin:0 6px 8px 0}
+.tasks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.task{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:9px 11px;background:var(--bg);display:flex;gap:10px;align-items:flex-start}
+.task.wide{grid-column:1/-1}
+.task input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--c);flex:none;cursor:pointer}
+.task.done .ttxt{text-decoration:line-through;color:var(--mute)}
+.who{font-weight:800;color:var(--c)}
+.tmeta{font-size:13.5px;color:var(--mute);margin-top:3px;overflow-wrap:anywhere}
+.dw{font-size:14.5px;margin-top:8px;color:var(--good)}
+.dw b{color:var(--good)}
+.keydates{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;padding:0;list-style:none}
+.keydates li{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:8px;padding:6px 10px;font-size:14px;margin:0;background:var(--bg)}
+.keydates b{display:block;font-size:13px;color:var(--mute)}
+@media(max-width:760px){.tasks{grid-template-columns:1fr}.day{grid-template-columns:1fr;gap:6px}.when b{display:inline;font-size:22px}.when span{display:inline;margin-left:8px}}
 @media(max-width:900px){.toprow,.two,.fix{grid-template-columns:1fr}}
 @media(max-width:640px){.f{grid-template-columns:1fr}.f dt{padding-bottom:0}.f dd{border-top:0;padding-top:2px}
  table{font-size:13.5px}th,td{padding:7px 6px}.stack thead{display:none}.stack tr{display:grid;padding-block:8px;border-bottom:1px solid var(--line)}.stack td{border:0;padding:3px 6px}.stack td::before{content:attr(data-l);display:block;font-size:12.5px;font-weight:800;color:var(--mute)}.stats{grid-template-columns:1fr 1fr}}
@@ -112,8 +150,8 @@ summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:
  <div class="wrap">
   <div class="toprow">
    <div>
-    <h1>Katamari with WebGL: technical implementation plan</h1>
-    <p class="sub">CSCI 2408 · Fall 2026 · team repository <code>…-team-project-group-10</code>. Seventeen phases from the instructor's starter files to the submitted game, each one built the way our labs taught and each one testable before the next starts.</p>
+    <h1>Katamari with WebGL: team C2 complete plan</h1>
+    <p class="sub">CSCI 2408 · Fall 2026 · Khavar, Lala, Gunel, Fikrat. Phases 0–2 are done; Phase 3 starts today. All features by <b>Sat 5 Dec</b>, <b>two full bug-fixing days</b> (6–7 Dec, plus 9 Dec for blockers), and the <b>whole project finished on Tue 8 Dec</b>: game, README, video, slides and tested ZIP. 9–11 Dec are only for checking, rehearsing and submitting. Who does what each day is in the schedule; how to build each part is in the phase cards.</p>
    </div>
    <div class="stats">
     <div class="stat"><b id="sPct">0%</b><span>phases done</span><div class="bar"><i id="sBar" style="width:0"></i></div></div>
@@ -129,9 +167,106 @@ summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:
 </header>
 
 <nav class="nav" aria-label="Sections">
- <a href="#req">Requirements</a><a href="#materials">Materials</a><a href="#common">common/</a><a href="#style">Lab style</a><a href="#arch">Structure</a><a href="#phases">Phases</a><a href="#trace">Checklist</a><a href="#deliver">Docs &amp; submission</a><a href="#git">Git</a><a href="#open">Open questions</a>
+ <a href="#status">Status</a><a href="#schedule">Schedule</a><a href="#bugs">Bug days</a><a href="#req">Requirements</a><a href="#materials">Materials</a><a href="#common">common/</a><a href="#style">Lab style</a><a href="#arch">Structure</a><a href="#phases">Phases</a><a href="#trace">Checklist</a><a href="#deliver">Docs &amp; submission</a><a href="#git">Git</a><a href="#open">Open questions</a>
 </nav>
 
+
+<!-- ============================================================ STATUS -->
+<section class="band" id="status">
+ <div class="wrap">
+  <h2>Where we are on Saturday 28 November</h2>
+  <div class="two">
+   <div class="panel">
+    <h3 style="margin-top:0">Done on <code>main</code>, and what's next</h3>
+    <ul>
+     <li><b>Phase 0:</b> files renamed to <code>katamari-<span class="tn">C2</span>.html/.js</code>, headers fixed, <code>common/</code> loads on localhost.</li>
+     <li><b>Phase 1:</b> full-window canvas, <code>init()</code>, <code>transform()</code>, <code>render()</code> with <code>requestAnimFrame</code> and capped <code>dt</code>.</li>
+     <li><b>Phase 2:</b> <code>mesh.js</code>: sphere polyhedron (24 × 48) and plane, with normals and UVs.</li>
+     <li><b>Next, today:</b> Phase 3, <code>sphere.js</code> and <code>placeSpheres()</code> (random non-overlapping spheres, finishes M1).</li>
+    </ul>
+    <p class="note" style="margin-bottom:0">Still open from Phase 0: the AI chat links in the 26 Nov log entry.</p>
+   </div>
+   <div class="panel">
+    <h3 style="margin-top:0">Decisions this plan makes</h3>
+    <ul>
+     <li><b>Four branches only</b>, one per stage: <code>minimum</code>, <code>requirements-a</code>, <code>requirements-b</code>, <code>bug-fixes</code>. Each is merged into <code>main</code> with one PR at its milestone. Docs-only changes go straight to <code>main</code>. Pull before every push; merge, never rebase or force-push.</li>
+     <li><b>Camera numbers must match the FOVY.</b> With FOVY 90 and the Phase 4 factors the ball lands at screen y = −0.27, not the bottom. Either keep FOVY 60 (y = −0.47) or keep 90 and set <code>CAMERA_AHEAD = 20</code> (y = −0.47). Details in Phase 4.</li>
+     <li><b>Two demo keys</b> (Sat 5 Dec): <code>R</code> turns rolling off so A2 sliding can be shown, <code>L</code> stops the sun so A1's fixed light can be shown. Both are graded separately but B1/B4 would hide them.</li>
+     <li><b>A fixed B2 test layout</b> (console helper): player r = 1, pickup r = 0.8, sphere r = 1.1. The 1.1 sphere must bounce first and stick after the pickup.</li>
+     <li><b>Untrack course files now</b>, not at the end: the assignment PDF, review ZIP and old plans must not be in the repo or the ZIP.</li>
+     <li>"Smaller" = radius below the katamari's volume-equivalent radius; equal radii bounce.</li>
+    </ul>
+   </div>
+  </div>
+  <ul class="keydates">
+   <li class="kv"><b>28 Nov</b>Phase 3: random spheres (M1)</li>
+   <li class="kv"><b>29 Nov</b>Minimum done (M2, M3)</li>
+   <li class="gv"><b>30 Nov – 1 Dec</b>A1–A4</li>
+   <li class="fv"><b>2–5 Dec</b>B1–B4</li>
+   <li style="--c:var(--coral)"><b>Sat 5 Dec 20:00</b>Feature freeze</li>
+   <li style="--c:var(--coral)"><b>6–7 Dec</b>Two bug-fixing days (comments and video in parallel)</li>
+   <li style="--c:var(--good)"><b>Tue 8 Dec</b>Project complete</li>
+   <li class="av"><b>9 Dec</b>Grader check, blockers only</li>
+   <li class="av"><b>10 Dec</b>Rehearsal</li>
+   <li style="--c:var(--good)"><b>11 Dec</b>Submit</li>
+   <li style="--c:var(--warn)"><b>12 Dec</b>Deadline, buffer only</li>
+  </ul>
+ </div>
+</section>
+
+<!-- ============================================================ SCHEDULE -->
+<section class="band" id="schedule" style="background:var(--panel)">
+ <div class="wrap">
+  <h2>Who does what, every day</h2>
+  <p>Each task links to its phase card, which has the code, the lab reference, what to avoid and the tests. Weekend days are planned but shorter. If you can't work one, do it first thing the next day and tell the team.</p>
+  <div class="board">
+   <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-bottom:6px"><b>The whole schedule</b><div class="mem"><span class="kv">Khavar</span><span class="lv">Lala</span><span class="gv">Gunel</span><span class="fv">Fikrat</span><span class="av">Everyone</span></div></div>
+   <div class="scroll"><div class="grid" id="sgrid"></div></div>
+   <p class="note">Each dot is a task (click to jump). Orange columns are the bug-fixing days. Branch names follow the four-branch setup: <code>minimum</code>, <code>requirements-a</code>, <code>requirements-b</code>, <code>bug-fixes</code>; docs go straight to <code>main</code>.</p>
+  </div>
+  <div id="sdays"></div>
+ </div>
+</section>
+
+<!-- ============================================================ BUG DAYS -->
+<section class="band" id="bugs">
+ <div class="wrap">
+  <h2>How the bug days work (6–7 December)</h2>
+  <p>After the freeze on Saturday 5 Dec at 20:00, <code>main</code> only takes fixes, tuning and comments. Every bug becomes a GitHub Issue, gets one owner, and is fixed on a <code>fix-&lt;topic&gt;</code> branch the same day.</p>
+  <div class="two">
+   <div class="panel">
+    <h3 style="margin-top:0">Issue template</h3>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre>Title: [B2] Small sphere sometimes sticks twice
+Requirement: B2
+Commit: a1b2c3d (main)
+Steps: 1. reload  2. roll fast into a r=0.5 sphere  3. watch attachments
+Expected: one attachment, volume added once
+Actual: two attachments at the same spot
+Owner: Gunel     Retested by: Fikrat</pre></div>
+    <h3>Fix in this order</h3>
+    <ol><li>Crashes and console errors (the loop stops)</li><li>A requirement that doesn't work</li><li>Packaging problems (404s, file name case, texture paths)</li><li>Visual glitches and tuning</li></ol>
+   </div>
+   <div class="panel">
+    <h3 style="margin-top:0">Stress tests to run</h3>
+    <ul>
+     <li>Top speed into small and large spheres (no skipped contacts, no tunnelling).</li>
+     <li>Near-equal radii and several pickups in a row (each counted once).</li>
+     <li>Switch tabs while holding a key; resize the window; slow frame (DevTools CPU throttling 6×).</li>
+     <li>Attachment-only contacts: pickup and bounce. Big lumpy ball into the sky at several angles.</li>
+     <li>Five minutes of play: no NaN in <code>player.position</code>, 60 fps, no console warnings.</li>
+     <li>Chrome and Firefox, fresh clone, served from localhost.</li>
+    </ul>
+    <h3>Common WebGL and movement bugs</h3>
+    <ul>
+     <li>Shader/JS uniform name mismatch → location is <code>null</code>, nothing changes.</li>
+     <li>Light in world space while normals are in eye space → light "follows" the camera.</li>
+     <li>Image file name case (<code>Grass.bmp</code> vs <code>grass.bmp</code>) works on Windows, 404s on Linux.</li>
+     <li><code>normalize()</code> of a zero vector or <code>lookAt</code> straight down → NaN or exception.</li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</section>
 <!-- ============================================================ REQUIREMENTS -->
 <section class="band" id="req">
  <div class="wrap">
@@ -335,7 +470,7 @@ summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:
 <section class="band" id="phases" style="background:var(--panel)">
  <div class="wrap">
   <h2>Implementation phases</h2>
-  <p>Do them in order. Each phase ends with a page that runs on localhost with no console errors, and keeps everything earlier phases built. Tick “Phase done” only when every test in its card passes.</p>
+  <p>Phases 0–2 are done and folded below. Do the rest in order. Each phase ends with a page that runs on localhost with no console errors, and keeps everything earlier phases built. Tick “Phase done” only when every test in its card passes.</p>
   <ul class="flow">
    <li style="--c:var(--doc)"><a href="#p0">0 Setup</a></li><li style="--c:var(--doc)"><a href="#p1">1 Loop</a></li><li style="--c:var(--min)"><a href="#p2">2 Mesh</a></li><li style="--c:var(--min)"><a href="#p3">3 Scene</a></li><li style="--c:var(--min)"><a href="#p4">4 Camera</a></li><li style="--c:var(--min)"><a href="#p5">5 Mouse</a></li><li class="ms">Minimum requirements done</li>
    <li style="--c:var(--reqa)"><a href="#p6">6 Slide</a></li><li style="--c:var(--reqa)"><a href="#p7">7 Light</a></li><li style="--c:var(--reqa)"><a href="#p8">8 Textures</a></li><li style="--c:var(--reqa)"><a href="#p9">9 Skybox</a></li><li class="ms">Requirements A done</li>
@@ -345,10 +480,14 @@ summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:
   <p class="note">Phases 6–9 depend only on Phases 0–5 and could be worked on in parallel branches; Phases 10–14 likewise depend on 6–9 (exact dependencies are in each card).</p>
   <div class="panel"><b>How the code in this plan was checked.</b> All snippets were assembled into a throwaway test page (not part of the repository, not our implementation) using our team's <code>common/</code> files and the lab textures, and run in Chromium: shaders compiled, no console errors, the ball sat at screen y = −0.47, collected spheres and bounced, and placement gave zero overlaps. The snippets are guides to adapt and comment, not finished code to paste.</div>
 
+  <details class="donephases">
+   <summary>Phases 0–2 are done (26 Nov) · open to see what was built and how</summary>
+   <p class="note">Kept for reference: you'll need them for the code comments, the citations, the video ("how we built the sphere and the random scene") and the questions at the demo. Nothing here needs work, except the AI chat links in the 26 Nov log entry.</p>
   <!-- ---------------- PHASE 0 -->
   <article class="phase" id="p0" style="--c:var(--doc)">
    <div class="phead"><h3><span class="n">0</span>Repository setup and <code>common/</code> integration</h3><label class="pdone"><input type="checkbox" data-c="p0" data-phase="0"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>All · done 26 Nov</b></dd>
     <dt>What</dt><dd>Rename the two starter files, fix their headers, add <code>"use strict"</code>, and confirm the three <code>common/</code> libraries load from a local web server. Start the Developer Log.</dd>
     <dt>Why</dt><dd>The PDF gives <b>zero</b> if the files aren't renamed with the team name, and the grader runs the ZIP on localhost. Textures (Phase 8) only load over <code>http://</code>, never <code>file://</code>.</dd>
     <dt>Builds on</dt><dd>Classroom50 team created with the Blackboard name and the repo cloned in VS Code (already done according to our first plan).</dd>
@@ -399,6 +538,7 @@ typeof requestAnimFrame        // "function"   (common/webgl-utils.js)</pre></di
   <article class="phase" id="p1" style="--c:var(--doc)">
    <div class="phead"><h3><span class="n">1</span>Shaders, matrices and the render loop</h3><label class="pdone"><input type="checkbox" data-c="p1" data-phase="1"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Khavar · done 26 Nov</b></dd>
     <dt>What</dt><dd>The lab skeleton inside our main file: <code>init()</code> that compiles the shaders and looks up locations, <code>transform()</code> for the projection and view matrices, and <code>render()</code> that runs every frame with a measured time step <code>dt</code>. Proven with the Lab 10 test tetrahedron spinning.</dd>
     <dt>Why</dt><dd>Every later phase plugs into these three functions. A continuous loop is needed because the ball moves even when no event happens (the labs only re-rendered after an event).</dd>
     <dt>Builds on</dt><dd>Phase 0.</dd>
@@ -578,6 +718,7 @@ window.onresize = resizeCanvas;
   <article class="phase" id="p2" style="--c:var(--min)">
    <div class="phead"><h3><span class="n">2</span>Mesh class: sphere polyhedron and ground plane <span class="pill p-min">M1</span></h3><label class="pdone"><input type="checkbox" data-c="p2" data-phase="2"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Gunel · done 26 Nov</b></dd>
     <dt>What</dt><dd>A <code>Mesh</code> class that builds a <b>unit sphere as a polyhedron</b> (latitude/longitude grid of triangles) and a square <b>ground plane</b>, each with positions, normals and texture coordinates, uploads them to buffers and draws them.</dd>
     <dt>Why</dt><dd>M1 requires “each sphere is approximated by a corresponding polyhedron”. Normals are needed for A1 and texture coordinates for A3, so we generate them now and never touch the geometry again.</dd>
     <dt>Builds on</dt><dd>Phase 1 (loop, locations). The tetrahedron and <code>aColor</code> are removed.</dd>
@@ -729,10 +870,13 @@ class Mesh {
    </dl>
   </article>
 
+  </details>
+
   <!-- ---------------- PHASE 3 -->
   <article class="phase" id="p3" style="--c:var(--min)">
    <div class="phead"><h3><span class="n">3</span>Scene: random non-intersecting spheres on the plane <span class="pill p-min">M1</span></h3><label class="pdone"><input type="checkbox" data-c="p3" data-phase="3"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Gunel (Sphere), Khavar (placeSpheres, render), Fikrat (overlap tests), Lala (script tag) · Sat 28 Nov</b></dd>
     <dt>What</dt><dd>A <code>Sphere</code> class (position, radius, model matrix, overlap test, draw) and <code>placeSpheres()</code>, which scatters <code>SPHERE_COUNT</code> spheres of random radii on the plane without any two intersecting. A temporary overview camera shows the whole scene.</dd>
     <dt>Why</dt><dd>Completes M1. The radii must differ, because B2 needs smaller spheres to pick up and larger ones to bounce off (the PDF sketch also shows mixed sizes).</dd>
     <dt>Builds on</dt><dd>Phase 2 (<code>sphereMesh</code>, <code>planeMesh</code>).</dd>
@@ -862,6 +1006,7 @@ matrixView = lookAt(vec3(0.0, 70.0, 70.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0
      <label><input type="checkbox" data-c="t3b"><span>Every reload gives a new layout; sizes clearly vary; no sphere sits on the start point (0, 0).</span></label>
      <label><input type="checkbox" data-c="t3c"><span>Console says <code>placeSpheres: 40 spheres …</code> (if fewer, reduce the count or radii).</span></label></div></dd>
     <dt>Expected result</dt><dd class="expect">From high above: a large plane dotted with 40 normal-coloured spheres of different sizes, none touching.</dd>
+    <dt class="test">Status</dt><dd><span class="bad">To do · Sat 28 Nov</span> on branch <code>minimum</code>. Not implemented yet: the player ball (r = 1) is still the only sphere drawn.</dd>
    </dl>
   </article>
 
@@ -869,6 +1014,7 @@ matrixView = lookAt(vec3(0.0, 70.0, 70.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0
   <article class="phase" id="p4" style="--c:var(--min)">
    <div class="phead"><h3><span class="n">4</span>Player and third-person camera <span class="pill p-min">M2</span></h3><label class="pdone"><input type="checkbox" data-c="p4" data-phase="4"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Gunel (Player), Fikrat (Camera), Lala (script tags, framing check) · Sun 29 Nov</b></dd>
     <dt>What</dt><dd>A <code>Player</code> (the katamari) that extends <code>Sphere</code>, and a <code>Camera</code> that each frame computes a <code>lookAt</code> view from behind and above the player, looking at a point ahead of it, with distances proportional to the katamari's size.</dd>
     <dt>Why</dt><dd>M2: the perspective view must be “set and changed” so the player appears at the bottom centre, like a wider behind-the-back third-person view. Scaling the camera with <code>effectiveRadius()</code> keeps that framing as the katamari grows in Phase 11. “Changed” is covered in two places, both rebuilt every frame in <code>transform()</code>: the <b>projection</b> (aspect ratio follows the window, near plane follows the katamari's size) and the <b>view</b> (follows the player's position, the mouse yaw/height and the size). Say this in a comment above <code>transform()</code> and in the video.</dd>
     <dt>Builds on</dt><dd>Phase 3 (<code>Sphere</code>, scene).</dd>
@@ -948,11 +1094,12 @@ var radius = player.effectiveRadius();
 matrixProjection = perspective(FOVY, canvas.width / canvas.height, NEAR_FACTOR * radius, FAR);
 // View changes with the player's position, the mouse (Phase 5) and the size
 matrixView = camera.getViewMatrix(player.position, radius);</pre></div>
+     <div class="panel" style="margin-bottom:10px"><b>FOVY decision (checked with the same maths as the NDC test).</b> The ball's screen height depends on the field of view and the three factors together. With <code>CAMERA_DISTANCE 6</code>, <code>CAMERA_HEIGHT 4</code>: FOVY 60 + <code>CAMERA_AHEAD 6</code> → y = −0.47 (bottom quarter). FOVY 90 + <code>CAMERA_AHEAD 6</code> → y = −0.27 (too close to the middle). If the team keeps FOVY 90 from Phase 2, use <code>CAMERA_AHEAD = 20</code> → y = −0.47. FOVY 60 stretches the edges less, so it is the recommended choice. Write the choice and the reason in a comment above the constants.</div>
      <p>Create <code>player = new Player(vec3(0.0, PLAYER_RADIUS, 0.0), PLAYER_RADIUS)</code> and <code>camera = new Camera()</code> in <code>init()</code>; draw the player after the spheres with <code>player.draw()</code>. With <code>FOVY = 60</code> and factors 6 / 4 / 6 the ball's centre lands at screen y ≈ −0.47 (bottom quarter) for <b>any</b> radius (computed with MV.js).</p>
     </dd>
     <dt class="avoid">Avoid</dt><dd>Fixed camera offsets in metres (the ball would fill the screen once it grows); <code>up</code> parallel to the view direction (<code>lookAt</code> throws); forgetting to update <code>matrixView</code> every frame; a far plane too short for the scene (<code>FAR</code> must exceed twice the sky radius).</dd>
     <dt class="test">Test</dt><dd><div class="checks">
-     <label><input type="checkbox" data-c="t4a"><span>The NDC check below prints x ≈ 0, y ≈ −0.47.</span></label>
+     <label><input type="checkbox" data-c="t4a"><span>The NDC check below prints x ≈ 0 and y between −0.40 and −0.55 (−0.47 with either recommended setting).</span></label>
      <label><input type="checkbox" data-c="t4b"><span>After moving the player and multiplying <code>totalVolume</code> by 27 in the console, the check prints the same numbers and the ball looks the same size on screen while the world looks smaller.</span></label>
      <label><input type="checkbox" data-c="t4c"><span><code>printm(matrixProjection)</code> in the console gives different numbers before and after the volume ×27 step and after resizing the window (the projection really changes).</span></label></div>
      <div class="cmd"><button class="copy" type="button">Copy</button><pre>// Console check: where is the ball on the screen? (normalized device coordinates, -1 .. 1)
@@ -971,6 +1118,7 @@ player.totalVolume *= 27;        // effective radius x3</pre></div></dd>
   <article class="phase" id="p5" style="--c:var(--min)">
    <div class="phead"><h3><span class="n">5</span>Mouse rotates the view around the player <span class="pill p-min">M3</span></h3><label class="pdone"><input type="checkbox" data-c="p5" data-phase="5"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Khavar (mouse handlers), Fikrat (camera limits) · Sun 29 Nov</b></dd>
     <dt>What</dt><dd>Mouse drag: horizontal movement changes <code>camera.yaw</code> (orbit around the player), vertical movement changes <code>camera.heightFactor</code> within limits.</dd>
     <dt>Why</dt><dd>M3: “rotate the scene effectively around the player by using a mouse”. The camera's yaw also defines “forward” for the keyboard in Phase 6.</dd>
     <dt>Builds on</dt><dd>Phase 4 (<code>Camera</code>).</dd>
@@ -1032,6 +1180,7 @@ function onMouseMove(e) {
   <article class="phase" id="p6" style="--c:var(--reqa)">
    <div class="phead"><h3><span class="n">6</span>Keyboard: slide, slow down, stop <span class="pill p-a">A2</span></h3><label class="pdone"><input type="checkbox" data-c="p6" data-phase="6"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Gunel (Player.update + input) · Mon 30 Nov</b></dd>
     <dt>What</dt><dd>WASD and arrow keys push the player relative to the camera. The player has a velocity; friction shrinks it every frame so the ball glides to a stop when no key is held.</dd>
     <dt>Why</dt><dd>A2. Movement relative to the camera keeps “up” meaning “away from the camera” after the view has been rotated with the mouse.</dd>
     <dt>Builds on</dt><dd>Phase 4 (<code>Player</code>), Phase 5 (<code>camera.yaw</code>), Phase 1 (<code>dt</code>).</dd>
@@ -1114,6 +1263,7 @@ const STOP_SPEED = 0.05;     // m/s: below this, with no key held, the ball stop
   <article class="phase" id="p7" style="--c:var(--reqa)">
    <div class="phead"><h3><span class="n">7</span>Fixed light and materials <span class="pill p-a">A1</span></h3><label class="pdone"><input type="checkbox" data-c="p7" data-phase="7"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Lala (shaders), Khavar (JS bindings, materials) · Mon 30 Nov</b></dd>
     <dt>What</dt><dd>Blinn-Phong lighting per fragment with one point light fixed in the world, and an ambient/diffuse/specular material plus shininess per sphere, for the plane and for the player.</dd>
     <dt>Why</dt><dd>A1. Lighting also makes the 3D shape and rolling readable, and B4 later only has to move <code>lightPosition</code>.</dd>
     <dt>Builds on</dt><dd>Phase 2 (normals), Phase 3 (<code>setModelView</code>, <code>Sphere</code>), Phase 4 (<code>matrixView</code> separate from the projection).</dd>
@@ -1232,6 +1382,7 @@ setMaterial(this.materialAmbient, this.materialDiffuse, this.materialSpecular, t
   <article class="phase" id="p8" style="--c:var(--reqa)">
    <div class="phead"><h3><span class="n">8</span>Textures on every model <span class="pill p-a">A3</span></h3><label class="pdone"><input type="checkbox" data-c="p8" data-phase="8"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Khavar (loading), Lala (sampler), Gunel (Sphere.texture), Fikrat (images + citations) · Tue 1 Dec</b></dd>
     <dt>What</dt><dd>Load several image textures at start-up, give each sphere one, the plane a repeating grass texture and the player its own; multiply the lit colour by the texture colour in the fragment shader.</dd>
     <dt>Why</dt><dd>A3: “appropriate textures to all your models”. A visible pattern on the player is also what makes the rolling in Phase 10 visible.</dd>
     <dt>Builds on</dt><dd>Phase 2 (texture coordinates), Phase 7 (lit colour).</dd>
@@ -1311,6 +1462,7 @@ gl.bindTexture(gl.TEXTURE_2D, this.texture);   // e.g. at the start of Sphere.dr
   <article class="phase" id="p9" style="--c:var(--reqa)">
    <div class="phead"><h3><span class="n">9</span>Spherical textured skybox <span class="pill p-a">A4</span></h3><label class="pdone"><input type="checkbox" data-c="p9" data-phase="9"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Fikrat (sky + camera clamp), Lala (unlit path) · Tue 1 Dec</b></dd>
     <dt>What</dt><dd>A huge sphere of radius <code>SKY_RADIUS</code> centred at the origin, textured with the sky image and drawn without lighting. The camera is kept inside it.</dd>
     <dt>Why</dt><dd>A4: a spherical skybox with a texture that acts as the border of the scene. B3 bounces the katamari off it later.</dd>
     <dt>Builds on</dt><dd>Phase 3 (<code>Sphere</code>, <code>SKY_RADIUS</code>), Phase 8 (textures).</dd>
@@ -1358,6 +1510,7 @@ if (length(eye) &gt; CAMERA_MAX_FRACTION * SKY_RADIUS) {
   <article class="phase" id="p10" style="--c:var(--reqb)">
    <div class="phead"><h3><span class="n">10</span>Rolling instead of sliding <span class="pill p-b">B1</span></h3><label class="pdone"><input type="checkbox" data-c="p10" data-phase="10"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Gunel · Wed 2 Dec</b></dd>
     <dt>What</dt><dd>The player keeps an <code>orientation</code> matrix. Every frame it rotates by <code>distance / radius</code> radians around <code>cross(up, velocity)</code>, which is rolling without slipping. The model matrix uses this orientation.</dd>
     <dt>Why</dt><dd>B1 (first half). Attachments in Phase 11 rotate with this same matrix.</dd>
     <dt>Builds on</dt><dd>Phase 6 (velocity), Phase 8 (texture, to see the rotation).</dd>
@@ -1394,6 +1547,7 @@ if (length(eye) &gt; CAMERA_MAX_FRACTION * SKY_RADIUS) {
   <article class="phase" id="p11" style="--c:var(--reqb)">
    <div class="phead"><h3><span class="n">11</span>Collisions: attach smaller, bounce off larger, grow <span class="pill p-b">B2</span></h3><label class="pdone"><input type="checkbox" data-c="p11" data-phase="11"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Gunel (player.js), Khavar (checkCollisions, drawing), Fikrat (tests) · Thu 3 Dec core, Fri 4 Dec attachments</b></dd>
     <dt>What</dt><dd>Each frame, test the player core <i>and every attachment</i> against every free sphere. A touched sphere smaller than the katamari is stuck on (stored in the katamari's local frame) and its volume is added; a larger one makes the katamari bounce.</dd>
     <dt>Why</dt><dd>B2, the core of the game. Growth feeds the camera (Phase 4) and the rolling radius (Phase 10).</dd>
     <dt>Builds on</dt><dd>Phases 3 (<code>intersects</code>), 4 (<code>effectiveRadius</code>), 6 (velocity), 10 (<code>orientation</code>).</dd>
@@ -1504,6 +1658,7 @@ for (var k = 0; k &lt; player.attachments.length; k++) {
   <article class="phase" id="p12" style="--c:var(--reqb)">
    <div class="phead"><h3><span class="n">12</span>Believable wobbling <span class="pill p-b">B1</span></h3><label class="pdone"><input type="checkbox" data-c="p12" data-phase="12"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Gunel · Fri 4 Dec</b></dd>
     <dt>What</dt><dd>After every move, raise or lower the katamari so its <b>lowest point</b> (core or any attachment) rests on the ground. As attachments roll underneath, the whole ball bobs and rocks: the lumpy-katamari wobble from the gameplay video.</dd>
     <dt>Why</dt><dd>B1 (second half): “emulate believable wobbling of katamari”. Done after Phase 11 because without attachments there is nothing to wobble.</dd>
     <dt>Builds on</dt><dd>Phase 10 (rolling), Phase 11 (<code>getParts</code>).</dd>
@@ -1540,6 +1695,7 @@ for (var k = 0; k &lt; player.attachments.length; k++) {
   <article class="phase" id="p13" style="--c:var(--reqb)">
    <div class="phead"><h3><span class="n">13</span>Bounce off the inside of the skybox <span class="pill p-b">B3</span></h3><label class="pdone"><input type="checkbox" data-c="p13" data-phase="13"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Fikrat · Fri 4 Dec</b></dd>
     <dt>What</dt><dd>When the furthest point of the katamari reaches the sky sphere, reflect the velocity about the inward normal and move the katamari back inside.</dd>
     <dt>Why</dt><dd>B3.</dd>
     <dt>Builds on</dt><dd>Phase 9 (sky), Phase 11 (attachments, <code>RESTITUTION</code>).</dd>
@@ -1584,6 +1740,7 @@ for (var k = 0; k &lt; player.attachments.length; k++) {
   <article class="phase" id="p14" style="--c:var(--reqb)">
    <div class="phead"><h3><span class="n">14</span>Sun orbit: rising and setting light <span class="pill p-b">B4</span></h3><label class="pdone"><input type="checkbox" data-c="p14" data-phase="14"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Khavar (orbit), Lala (colours) · Wed 2 Dec</b></dd>
     <dt>What</dt><dd>Move <code>lightPosition</code> along a circle over the scene; brightness and colour follow the sun's height (orange and dim near the horizon, white at noon, only ambient at night).</dd>
     <dt>Why</dt><dd>B4.</dd>
     <dt>Builds on</dt><dd>Phase 7 (<code>lightPosition</code>, <code>lightDiffuse</code>; the shader already receives the light in eye coordinates every frame).</dd>
@@ -1622,6 +1779,7 @@ const SUN_COLOR_HIGH = vec4(1.0, 1.0, 0.95, 1.0);</pre></div></dd>
   <article class="phase" id="p15" style="--c:var(--doc)">
    <div class="phead"><h3><span class="n">15</span>Documentation, citations and code quality</h3><label class="pdone"><input type="checkbox" data-c="p15" data-phase="15"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Everyone on own files, Fikrat README · Mon 7 Dec</b></dd>
     <dt>What</dt><dd>A full pass over every file: comments for every parameter and constant (meaning and unit), citations for everything we didn't invent, consistent naming, dead code removed. README: Developer Log complete, AI interactions logged, contribution table filled in.</dd>
     <dt>Why</dt><dd>40% of the grade: documented 20%, readable 10%, OOP 10%. Uncited ideas count as plagiarism under the PDF's rules.</dd>
     <dt>Builds on</dt><dd>Phases 0–14. Comments are best written in the same commit as the code; this phase is the final check.</dd>
@@ -1649,6 +1807,7 @@ const SUN_COLOR_HIGH = vec4(1.0, 1.0, 0.95, 1.0);</pre></div></dd>
   <article class="phase" id="p16" style="--c:var(--doc)">
    <div class="phead"><h3><span class="n">16</span>Video, presentation and submission <span class="pill p-min">M4</span></h3><label class="pdone"><input type="checkbox" data-c="p16" data-phase="16"> Phase done</label></div>
    <dl class="f">
+    <dt>Who · when</dt><dd><b>Lala (video, slides), Khavar (ZIP), Gunel (second-laptop test), Fikrat (README, submit) · Tue 8 Dec, submit 11 Dec</b></dd>
     <dt>What</dt><dd>The ≤ 5-minute video, the presentation slides, the final ZIP and the Blackboard submission.</dd>
     <dt>Why</dt><dd>M4 is part of the Minimum; the submission must contain the repo URL, the video URL and the ZIP.</dd>
     <dt>Builds on</dt><dd>Phases 0–15 (footage saved at each milestone).</dd>
@@ -1764,22 +1923,26 @@ What we kept / changed: ...</pre></div>
   <div class="two">
    <div>
     <ul>
-     <li>One short-lived branch per feature, <b>named after the feature, not the phase number</b> (instructor's rule), e.g. <code>render-loop</code>, <code>sphere-mesh</code>, <code>random-spheres</code>, <code>third-person-camera</code>, <code>mouse-orbit</code>, <code>keyboard-slide</code>, <code>lighting</code>, <code>textures</code>, <code>skybox</code>, <code>rolling</code>, <code>collisions</code>, <code>wobble</code>, <code>sky-bounce</code>, <code>sun-orbit</code>. Merged into <code>main</code> with a Pull Request when its tests pass. Docs-only changes (README) can go straight to <code>main</code>.</li>
+     <li><b>Four branches, one per stage</b>: <code>minimum</code> (28–29 Nov), <code>requirements-a</code> (30 Nov – 1 Dec), <code>requirements-b</code> (2–5 Dec), <code>bug-fixes</code> (6–7 Dec). All four members commit to the stage branch, each mostly in their own files. <code>git pull</code> before you start and before every push; if a push is rejected, pull, check the game runs, push again. At the milestone Khavar opens one PR into <code>main</code> and merges it with "Create a merge commit" (never squash: it hides the daily commits). Docs-only changes (README) go straight to <code>main</code>. <code>sphere-mesh</code> is merged; delete it on GitHub.</li>
      <li><b>At least one meaningful commit on GitHub every workday</b>: this is a grade coefficient. Small working steps, each with a clear message.</li>
      <li>Commit messages: <code>Area: what (requirement)</code>, e.g. <code>Collision: test attachments in world space (B2)</code>. Not <code>update</code>, <code>fix</code>, <code>final2</code>.</li>
      <li>Commit from your own account with your GitHub email (<code>git config --global user.email</code>), otherwise the commits don't count as yours.</li>
-     <li>Never <code>git push --force</code> on <code>main</code>; never commit the video file.</li>
+     <li>Never <code>git push --force</code> on <code>main</code>, and never rebase commits that are already on GitHub; never commit the video file.</li>
+     <li><b>Who merges:</b> Khavar opens and merges each stage PR after the day's "Done when" passes on localhost; Gunel double-checks it.</li>
+     <li><b>Team target:</b> two meaningful commits per workday (agreed 25 Nov), and every member commits on their own task days.</li>
+     <li><b>Untrack course files today</b> (Fikrat, Sat 28 Nov): <code>git rm --cached &lt;file&gt;</code> for the assignment PDF, review ZIPs and old plans, then commit <code>Repo: stop tracking course materials</code>. They stay on your disk.</li>
     </ul>
    </div>
    <div class="cmd" style="margin-top:0"><button class="copy" type="button">Copy</button><pre># once per feature
 git switch main
 git pull
-git switch -c lighting
+git switch -c requirements-a
 
 # small working steps, at least one meaningful commit to GitHub every workday
 git add katamari-{TEAM}.html katamari-{TEAM}.js sphere.js
 git commit -m "Lighting: Blinn-Phong shaders and normal matrix (A1)"
-git push -u origin lighting      # afterwards just: git push
+git pull                         # always pull before pushing a shared branch
+git push -u origin requirements-a   # afterwards just: git push
 
 # phase finished and its tests pass: open a Pull Request, review, "Create a merge commit"
 git switch main
@@ -1804,7 +1967,9 @@ git push origin minimum-requirements
   <div class="q"><b>5. Reusing the lab textures.</b>The BMPs come from the course's gl-texture repository. Reusing course material with a citation should be fine, but the PDF only mentions libraries. <i>Ask if unsure.</i></div>
   <div class="q"><b>6. Names of extra files.</b>The PDF requires the team suffix only on the root <code>.htm</code> and <code>.js</code> files we were given. We leave <code>mesh.js</code>, <code>sphere.js</code>, <code>player.js</code>, <code>camera.js</code> without suffix. <i>Ask if unsure;</i> renaming later only touches four script tags.</div>
   <div class="q"><b>7. File extension.</b>The PDF says “.htm”, the starter file is <code>katamari.html</code>. We keep <code>.html</code> and only add the suffix.</div>
-  <div class="q"><b>8. Team name.</b>The repository is named “group-10”; our first plan recorded the Blackboard team name as <code>C2</code>. The file names must use the Blackboard name. <i>Check in Blackboard.</i></div>
+  <div class="q"><b>8. Team name.</b>The repository is named “group-10” but the files use <code>C2</code>, the Blackboard team name. The file names must match Blackboard exactly. <i>Fikrat confirms in Blackboard on 28 Nov.</i></div>
+  <div class="q"><b>11. Branches or shared <code>main</code>?</b>The brief doesn't say. This plan keeps short feature branches with PRs, the way Phases 2–3 were done. If the instructor said otherwise in class, switch to pulling before every commit on <code>main</code>. <i>Check.</i></div>
+  <div class="q"><b>12. Demo keys R and L.</b>Not asked for, but they let the grader see A2 (sliding) and A1 (fixed light), which B1 and B4 would otherwise replace. Mention them in the controls text and the video.</div>
   <div class="q"><b>9. Start date of the daily-commit rule.</b>“The first Thursday after the assignment was posted”; the posting date isn't in the PDF. Commit every workday from now on regardless.</div>
   <div class="q"><b>10. Presentation template and demo-day date.</b>Not in the materials we have. Get them from Blackboard.</div>
  </div>
@@ -1816,9 +1981,112 @@ git push origin minimum-requirements
  </div>
 </section>
 
+
 <script>
 {
-const KEY='katamari-c2-techplan-v3';
+const M={k:['Khavar','kv'],l:['Lala','lv'],g:['Gunel','gv'],f:['Fikrat','fv'],a:['Everyone','av']};
+const D=[
+ {d:'2026-11-28',t:'Phase 3: random spheres on the plane',p:'M1 · Phase 3',ms:'M1 done',s:'M1',
+  x:[['g','sphere.js: class Sphere with position, radius, getModelMatrix(), intersects(), draw(modelMatrix) using the shared sphere mesh. Push first, by midday.','minimum','p3'],
+     ['k','katamari-C2.js: constants, placeSpheres() (rejection sampling, attempts limit, start point free), countOverlaps(), setModelView(), draw plane and spheres in render(); temporary overview camera.','minimum','p3'],
+     ['f','Test 10+ reloads: countOverlaps() == 0, every sphere at y = r, start point free, sizes vary. Untrack the PDF, ZIPs and old plans. Start camera.js (Phase 4) in its own file.','minimum','p4'],
+     ['l','Script tag for sphere.js; controls text; check the scene with the debug normal colours; start the footage folder (outside the repo).','minimum','p3']],
+  w:'At least 10 reloads give new layouts, every sphere rests on the ground, countOverlaps() is 0, console clean.'},
+ {d:'2026-11-29',t:'Minimum done: player, camera, mouse',p:'M2, M3 · Phases 4–5',ms:'Merge minimum, tag minimum-requirements',s:'Min',
+  x:[['g','Player extends Sphere with velocity, orientation, attachments, totalVolume, effectiveRadius(); draw the player after the spheres.','minimum','p4'],
+     ['f','Camera class and transform() rebuilt every frame; decide FOVY 60 or FOVY 90 + CAMERA_AHEAD 20; NDC and grow ×27 checks.','minimum','p4'],
+     ['k','Mouse orbit: onMouseDown on the canvas, onMouseUp/onMouseMove on window, height clamp, stop the drag on blur. Open the PR minimum → main in the evening.','minimum','p5'],
+     ['l','Script tags for player.js and camera.js in order; framing check in a normal and a tall narrow window; controls text.','minimum','p4']],
+  w:'Ball stays bottom centre after moving, resizing and a ×27 volume; full 360° orbit; vertical drag stops at the limits; minimum merged and tagged.'},
+ {d:'2026-11-30',t:'Requirements A, part 1: slide and light',p:'A2, A1 · Phases 6–7',
+  x:[['g','A2: keysDown, onKeyDown/onKeyUp, window.onblur clears keys, getInputDirection(), update(dt), Player.update with acceleration, exp friction, stop threshold, top speed.','requirements-a','p6'],
+     ['l','A1: Blinn-Phong vertex and fragment shaders in eye coordinates; agree uniform names with Khavar first.','requirements-a','p7'],
+     ['k','A1: uniform locations, setModelView with normalMatrix(), setMaterial(), light moved to eye space each frame; matte and glossy materials.','requirements-a','p7'],
+     ['f','A2 tests (camera turned 90°, opposite keys, tab switch); copy the lab BMPs into textures/ with citations for tomorrow; Developer Log.','requirements-a','p8']],
+  w:'Ball slides in four directions relative to the camera and stops at exactly zero; lit sides stay put while orbiting; matte and glossy differ.'},
+ {d:'2026-12-01',t:'Requirements A, part 2: textures and sky',p:'A3, A4 · Phases 8–9',ms:'Merge requirements-a, tag requirements-A',s:'A',
+  x:[['k','A3: texArray checkerboard, loadTexture(), textures[] before placeSpheres(), activeTexture/uniform1i once, bind before each draw. Push by midday.','requirements-a','p8'],
+     ['l','A3/A4 shaders: uImage0 sampler, lit colour × texture, uUseLighting flag for the unlit sky; lighten materials.','requirements-a','p8'],
+     ['g','Sphere.texture field and bindTexture in draw(); random texture per sphere; plane with PLANE_TILES; check UV seam and poles.','requirements-a','p8'],
+     ['f','A4: skySphere (SKY_RADIUS, sky texture, drawn first unlit), camera clamp inside the sky, FAR check.','requirements-a','p9']],
+  w:'Every model textured with all images at status 200; no black background from any angle; requirements-a merged and tagged.'},
+ {d:'2026-12-02',t:'Requirements B, part 1: rolling and sun',p:'B1, B4 · Phases 10, 14',
+  x:[['g','B1 rolling: getModelMatrix with orientation; rotate(distance / effectiveRadius in degrees, cross(up, velocity)), pre-multiplied.','requirements-b','p10'],
+     ['k','B4: sunAngle += SUN_SPEED·dt in update(); lightPosition on the orbit; daylight from the sun\'s height; colours updated before drawing.','requirements-b','p14'],
+     ['l','Sun colours (low orange, noon white, night ambient) and material tuning; save A1–A4 footage; start the slide outline.','requirements-b','p14'],
+     ['f','Regression test A1–A4; write makeTestLayout() (player r 1, pickup r 0.8, sphere r 1.1 in front of the player).','requirements-b','p11']],
+  w:'Texture rolls with travel and stops when the ball stops; lit side moves across the scene in one minute.'},
+ {d:'2026-12-03',t:'Requirements B, part 2: collisions on the core',p:'B2 · Phase 11',
+  x:[['g','player.js: attach() in the local frame, getAttachmentPosition(), getAttachmentModelMatrix(), getParts(), bounceOff() with RESTITUTION.','requirements-b','p11'],
+     ['k','checkCollisions() looping backwards with splice; update order; draw attachments at the end of render().','requirements-b','p11'],
+     ['f','With makeTestLayout(): core pickup and bounce, direct and glancing hits, the 1.1 sphere collectable after the 0.8 pickup, no double counting.','requirements-b','p11'],
+     ['l','Attached spheres keep texture and material while turning; record pickup and bounce footage; slides draft.','requirements-b','p11']],
+  w:'A small sphere sticks once and adds its volume; a large one bounces the ball; the camera pulls back as it grows.'},
+ {d:'2026-12-04',t:'Requirements B, part 3: attachments, wobble, sky bounce',p:'B2, B1, B3 · Phases 11–13',
+  x:[['g','B1 wobble: settleOnGround(dt). Push before Fikrat (same file, different methods).','requirements-b','p12'],
+     ['f','B3: boundingRadius() and bounceOffSky(); head-on and glancing tests, with attachments.','requirements-b','p13'],
+     ['k','Attachment-only contacts end to end; final update order: update → checkCollisions → settleOnGround → bounceOffSky.','requirements-b','p11'],
+     ['l','Test sky and shaders on a second browser or laptop; record wobble and sky-bounce footage.','requirements-b','p13']],
+  w:'An attachment alone can pick up and bounce; the lumpy ball bobs as it rolls; ball and attachments always bounce back from the sky.'},
+ {d:'2026-12-05',t:'Integration and feature freeze',p:'All 12 programming requirements',ms:'Merge requirements-b at 20:00, tag requirements-B',s:'Freeze',
+  x:[['k','Demo keys: R toggles rolling (shows A2), L stops the sun (shows A1). Open the PR requirements-b → main; merge at the freeze.','requirements-b','p16'],
+     ['g','Tune in config constants: sphere count and radii so pickups progress, ATTACH_RATIO, RESTITUTION, speeds.','requirements-b','p11'],
+     ['l','Controls text for all keys; footage of every requirement; slides draft with each person\'s part.','requirements-b','p16'],
+     ['f','Full requirement checklist run #1; every failure becomes a GitHub Issue with an owner.','docs on main','trace']],
+  w:'All twelve programming requirements pass once on main; every bug is an Issue with an owner.'},
+ {d:'2026-12-06',bug:1,t:'Bug day 1: fix the Issues, cross-test',p:'bug-fixes branch',s:'Bug 1',
+  x:[['g','Physics bugs: collisions, attachments, rolling, wobble.','bug-fixes','bugs'],['k','Render loop, input, asset paths, update order.','bug-fixes','bugs'],
+     ['l','Shader, texture and lighting bugs; texture file name case. Rough cut of the video.','bug-fixes','bugs'],['f','Camera and sky bugs; retest and close every fixed Issue.','bug-fixes','bugs'],
+     ['a','Afternoon: cross-test someone else\'s requirements (Khavar → Gunel\'s, Gunel → Fikrat\'s, Fikrat → Lala\'s, Lala → Khavar\'s) in Chrome and Firefox, plus the stress tests. Merge bug-fixes → main in the evening.','bug-fixes','trace']],
+  w:'Friday\'s Issues fixed and retested; every checklist row passes in both browsers; no NaN, no tunnelling, no stuck keys.'},
+ {d:'2026-12-07',bug:1,t:'Bug day 2: last fixes, comments, README',p:'Release candidate',ms:'Tag release-candidate',s:'Bug 2',
+  x:[['k','Fresh clone, run from localhost, fix anything left; remove debug logs; comment the main file. Tag release-candidate after merging bug-fixes.','bug-fixes','p15'],
+     ['g','Near-equal radii, quick multiple pickups, 100+ attachments at 60 fps; remove duplicate draw logic; comment mesh, sphere and player.','bug-fixes','p15'],
+     ['l','Final video edit; slides including the AI experience slide; comment the shaders.','bug-fixes','p16'],
+     ['f','Checklist run on the release candidate; comment camera.js; README: complete Developer Log, every AI interaction, run instructions, contribution draft.','docs on main','deliver']],
+  w:'Release candidate passes the checklist from a fresh clone; every file commented; README complete except the two links.'},
+ {d:'2026-12-08',t:'Project complete',p:'M4 · Phases 15–16',ms:'Tag v1.0-final',s:'Done',
+  x:[['l','Post the video publicly on the agreed personal Instagram with all hashtags; check it opens signed out; send the link to Fikrat. Check the slides on the presentation laptop.','—','p16'],
+     ['f','Add both clickable URLs and the final contribution % (full names, sums to 100) to the README before the ZIP is built.','docs on main','p16'],
+     ['k','After the README update, build katamari-C2.zip with git archive from main; tag v1.0-final on that commit and record it.','—','p16'],
+     ['g','Unzip on a second laptop, serve on localhost, rerun rolling, attachment-only contacts and sky bounce after growth.','—','p16']],
+  w:'Game, README, public video, slides and a ZIP tested from a clean unzip are all ready to submit.'},
+ {d:'2026-12-09',t:'Check it as the grader would',p:'Buffer',s:'Check',
+  x:[['k','Follow the README from a clean folder; confirm the ZIP matches the v1.0-final commit.','—','p16'],
+     ['l','Open the video on a second device; check every hashtag in the caption.','—','p16'],
+     ['g','Run the full gameplay sequence from the extracted ZIP; report any blocker with exact steps.','—','p16'],
+     ['f','Cross-check README and demo against the requirement checklist; record the results.','—','trace']],
+  w:'The grader can find and run everything from the supplied files and links. Only blockers get fixed (then rebuild the ZIP).'},
+ {d:'2026-12-10',t:'Rehearse the demo',p:'Buffer',s:'Rehearse',
+  x:[['a','Timed rehearsal of the 10-minute slot including setup and questions. Khavar: main loop and input. Lala: shaders, lighting, textures. Gunel: mesh, rolling, attachments, collisions. Fikrat: camera, sky, contributions, AI experience.','—','p16']],
+  w:'Demo fits in 10 minutes and everyone knows what to show.'},
+ {d:'2026-12-11',t:'Submit on Blackboard',p:'Submission',ms:'Submitted',s:'Submit',
+  x:[['f','Submit the repo URL, video URL and katamari-C2.zip; share the receipt. The backup submitter has the same files.','—','p16'],
+     ['a','Each person checks one item of the receipt: ZIP name, repo link, video link, ZIP runs.','—','p16']],
+  w:'Blackboard shows the submission and a teammate has checked it against the receipt.'},
+ {d:'2026-12-12',dl:1,t:'Deadline: buffer only',p:'',s:'Due',
+  x:[['a','Only if something went wrong: resubmit before the cutoff. No new pushes otherwise, so the repo matches the ZIP.','—','p16']],
+  w:'Submission confirmed.'}
+];
+const KEY='katamari-c2-plan-v4';
+let st;try{st=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+const c=(st&&st.c)||{};
+const esc=x=>String(x).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const fmt=d=>{const x=new Date(d+'T12:00:00');return{wd:x.toLocaleDateString('en-GB',{weekday:'short'}),day:x.getDate(),dm:x.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}};
+const now=new Date(),today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+D.forEach((d,i)=>d.x.forEach((t,j)=>t.id='d'+i+'_'+j));
+document.getElementById('sdays').innerHTML=D.map(d=>{const f=fmt(d.d);return`<div class="day${d.bug?' bug':''}"><div class="when"><b>${f.wd} ${f.day}</b><span>${f.dm}${d.d===today?' · today':''}</span></div><div><div class="dtitle">${esc(d.t)}</div>${d.p?`<span class="dbadge" style="color:var(--teal2);border-color:var(--teal2)">${esc(d.p)}</span>`:''}${d.ms?`<span class="dbadge">◆ ${esc(d.ms)}</span>`:''}<div class="tasks">${d.x.map(t=>`<div class="task ${M[t[0]][1]}${t[0]==='a'?' wide':''}${c[t.id]?' done':''}" id="${t.id}"><input type="checkbox" data-c="${t.id}" aria-label="Done"><div><span class="who">${M[t[0]][0]}</span> · <span class="ttxt">${esc(t[1])}</span><div class="tmeta">Branch: <code>${esc(t[2])}</code> · <a href="#${t[3]}">${t[3].startsWith('p')?'Phase '+t[3].slice(1):t[3]==='trace'?'Checklist':t[3]==='bugs'?'Bug days':'Templates'}</a></div></div></div>`).join('')}</div><div class="dw"><b>Done when:</b> ${esc(d.w)}</div></div></div>`}).join('');
+let h='<div class="lane"></div>'+D.map(d=>{const f=fmt(d.d);return`<div class="dh${d.bug?' bugc':''}${d.dl?' dl':''}${d.d===today?' tod':''}"><span>${f.wd}</span><b>${f.day}</b></div>`}).join('');
+h+='<div class="lane" style="color:var(--coral)">Milestone</div>'+D.map(d=>`<div class="${d.bug?'bugc':''}${d.dl?' dl':''}">${d.s?`<span class="gms">${esc(d.s)}</span>`:''}</div>`).join('');
+['k','l','g','f','a'].forEach(k=>{h+=`<div class="lane ${M[k][1]}" style="color:var(--c)">${M[k][0]}</div>`+D.map(d=>`<div class="${d.bug?'bugc':''}${d.dl?' dl':''}">${d.x.filter(t=>t[0]===k).map(t=>`<button type="button" class="chip ${M[k][1]}${c[t.id]?' done':''}" data-go="${t.id}" title="${esc(t[1])}" aria-label="${esc(M[k][0]+': '+t[1])}"></button>`).join('')}</div>`).join('')});
+document.getElementById('sgrid').innerHTML=h;
+document.addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.c;if(!id||!id.startsWith('d'))return;const el=document.getElementById(id);if(el)el.classList.toggle('done',e.target.checked);const ch=document.querySelector('.chip[data-go="'+id+'"]');if(ch)ch.classList.toggle('done',e.target.checked)});
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(!g)return;const el=document.getElementById(g.dataset.go);if(el)el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'})});
+}
+</script>
+<script>
+{
+const KEY='katamari-c2-plan-v4';
 // Phases 0-2 are done (26 November 2026), so they start ticked in a new browser
 let st={c:{p0:true,p1:true,p2:true},team:'C2'};
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)st=Object.assign(st,s)}catch(e){}

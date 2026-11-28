@@ -9,9 +9,9 @@
 // Mesh class to store the triangles of a shape and their WebGL buffers
 class Mesh {
     // Arrays to store vertex data, every 3 vertices make one triangle
-    vertices; // homogeneous coordinates of the vertices
-    normals; // normal vectors to calculate lighting
-    texCoords; // texture coordinates
+    vertices;
+    normals;
+    texCoords; 
 
     // WebGL buffers for the vertex data
     bufferVertexId;
@@ -41,13 +41,16 @@ class Mesh {
 
     // Add a point of the sphere grid
     #addSpherePoint(i, j, stacks, slices) {
-        var theta = i * Math.PI / stacks; // Latitude angle from the top
-        var phi = j * 2.0 * Math.PI / slices; // Longitude angle around the y-axis
+        // Latitude angle from the top
+        var theta = i * Math.PI / stacks;
+        // Longitude angle around the y-axis
+        var phi = j * 2.0 * Math.PI / slices;
         var x = Math.sin(theta) * Math.cos(phi);
         var y = Math.cos(theta);
         var z = Math.sin(theta) * Math.sin(phi);
         this.vertices.push(vec4(x, y, z, 1.0));
-        // The normal of a unit sphere is equal to the position
+
+        // Use sphere's position as its normal
         this.normals.push(vec3(x, y, z));
         this.texCoords.push(vec2(j / slices, i / stacks));
     }
@@ -57,11 +60,11 @@ class Mesh {
         var corners = [
             vec4(-halfSize, 0.0, -halfSize, 1.0),
             vec4(-halfSize, 0.0, halfSize, 1.0),
-            vec4( halfSize, 0.0, halfSize, 1.0),
-            vec4( halfSize, 0.0, -halfSize, 1.0)
+            vec4(halfSize, 0.0, halfSize, 1.0),
+            vec4(halfSize, 0.0, -halfSize, 1.0)
         ];
         var uvs = [vec2(0.0, 0.0), vec2(0.0, tiles), vec2(tiles, tiles), vec2(tiles, 0.0)];
-        // Define two triangles from the corners
+       // Create two triangles using the corners
         var order = [0, 1, 2, 0, 2, 3];
         for (var k = 0; k < order.length; k++) {
             this.vertices.push(corners[order[k]]);
@@ -71,9 +74,9 @@ class Mesh {
         }
     }
 
-    // Load the vertex data into the GPU
+
     loadToGPU() {
-        // Create and initialize a WebGL buffer for the vertex positions
+        // Create and initalize a WebGL buffer for the vertex positions
         this.bufferVertexId = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVertexId);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(this.vertices), gl.STATIC_DRAW);
@@ -89,19 +92,19 @@ class Mesh {
         gl.bufferData(gl.ARRAY_BUFFER, flatten(this.texCoords), gl.STATIC_DRAW);
     }
 
-    // Associate the shader variables with the mesh buffers and draw the mesh
+    // Connect the mesh buffers to the shader and draw the mesh
     draw() {
-        // Bind the vertex position buffer to the shader attribute
+       // Connect vertex positions to the shader
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVertexId);
         gl.vertexAttribPointer(aPosition, 4, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(aPosition);
 
-        // Bind the vertex normal buffer to the shader attribute
+        // Bind vertex normal buffer to the shader attribute
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferNormalId);
         gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(aNormal);
 
-        // Skip texture coordinates if the attribute isn't used by the shader
+        // skip texure coordinates if the attribute is not used by the shader
         if (aTexCoord != -1) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferTexCoordId);
             gl.vertexAttribPointer(aTexCoord, 2, gl.FLOAT, false, 0, 0);
