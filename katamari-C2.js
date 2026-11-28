@@ -3,7 +3,7 @@
     (c)2026 by Lala Huseynova, Khavar Jabbarli, Gunel Zeynalzada, Fikrat Rustamli (team C2) 
     Submitted in partial fulfillment of the requirements of the course.
 */
-"use strict";
+"use strict"
 
 var canvas;
 var gl;
@@ -31,16 +31,15 @@ var lastTime = 0;
 // Limit dt(in sec) so objects don't jump when we return to the tab
 const MAX_DT = 0.05;
 
-// Number of stacks and slices for the unit sphere
 const SPHERE_STACKS = 24; // bands from top to bottom
 const SPHERE_SLICES = 48; // division around y-axis
 
 const PLANE_HALF_SIZE = 60.0; // half-size of ground plane(metre)
 
 // Projection settings for the temporary camera
-const FOVY = 90.0; // vertical field of view in degrees
-const NEAR = 0.1; // near clipping distance in metres
-const FAR = 200.0; // far clipping distance in metres
+const FOVY = 90.0; // vertical field of view
+const NEAR = 0.1; // near clipping distance
+const FAR = 200.0; // far clipping distance
 
 window.onload = init;
 
@@ -81,7 +80,7 @@ function init() {
     console.log("init... End");
 }
 
-// Match the drawing buffer and viewport to the window size
+// Resize the canvas and viewport to fit the window
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -96,7 +95,7 @@ function transform() {
     matrixView = lookAt(vec3(0.0, 4.0, 4.0), vec3(0.0, 1.5, -6.0), vec3(0.0, 1.0, 0.0));
 }
 
-// Send the object's model-view matrix to the shader
+// pass the object's model-view matrix to the shader
 function setModelView(modelMatrix) {
     matrixModelview = mult(matrixView, modelMatrix);
     // flatten() puts the matrix in column-major order.
@@ -113,11 +112,11 @@ function render() {
     transform();
     gl.uniformMatrix4fv(uProjection, false, flatten(matrixProjection));
 
-    // The plane vertices are already in world coordinates.
+    // The plane vertices in world coordinates
     setModelView(mat4());
     planeMesh.draw();
 
-    // Raise the unit sphere by its radius so it rests on the plane
+    // Move the sphere up so it sits on the ground
     setModelView(translate(0.0, 1.0, 0.0));
     sphereMesh.draw();
 
