@@ -18,6 +18,12 @@ We watched the Katamari Damacy gameplay together and discussed how we could impl
 
 Lala renamed the main HTML and JavaScript files according to our team name (C2) and worked on the initial HTML setup. She adjusted the canvas to fill the browser window,  and set up the vertex and fragment shaders. For now, we use normals to colour the objects and check their appearance before adding lighting.
 
+28 November 2026
+---
+We implemented Phase 3 of our plan, which completes the first minimum requirement (M1). A new Sphere class (sphere.js) stores the position and radius of each ball, builds its model matrix from the shared unit sphere mesh and checks if two spheres overlap. The function placeSpheres() places 40 spheres with random radii between 0.3 m and 3 m at random positions on the plane, and throws away every position that would intersect another sphere or the start position of the player. We reloaded the page several times and checked that the spheres never touch each other. For now a temporary camera looks at the scene from above, the third-person camera comes in Phase 4. We also stopped tracking the assignment PDF, the review ZIP and the plan file with a .gitignore.
+
+Generative AI: we used Claude Code (Anthropic, model Claude Opus) to help write sphere.js, and placeSpheres(). Our input: "implement phase 3 of all members" with our plan file. Link to the interaction: {add link}
+
 {X} November 2026
 ---
 {Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.}
