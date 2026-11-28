@@ -9,6 +9,7 @@ var canvas;
 var gl;
 var program;
 
+// Transformation matrices
 var matrixProjection = mat4(); // camera space to clip space
 var matrixView = mat4(); // world to camera space
 var matrixModelview = mat4(); // matrixView * model matrix
@@ -30,55 +31,50 @@ var spheres = [];
 // Time of the previous frame in milliseconds
 var lastTime = 0;
 
-// Limit dt so objects don't jump when we return to the tab
+// Limit dt(in sec) so objects don't jump when we return to the tab
 const MAX_DT = 0.05;
 
 const SPHERE_STACKS = 24; // bands from top to bottom
 const SPHERE_SLICES = 48; // division around y-axis
 
-// size of the scene in metres, the sky later will have the same radius
+// Size of the scene in metres, the sky later will have the same radius
 const SKY_RADIUS = 60.0;
-
 // Half size of the ground plane, same as the sky so the ground reaches it
 const PLANE_HALF_SIZE = SKY_RADIUS;
-
-// empty space between the balls and the sky
+// Empty space between the balls and the sky
 const PLAY_MARGIN = 2.0;
 
-// number of balls at the start
+// Number of balls at the start
 const SPHERE_COUNT = 40;
-
 // Smallest and largest radius of the balls in metres
 const SPHERE_MIN_RADIUS = 0.3;
 const SPHERE_MAX_RADIUS = 3.0;
-
 // Radius of the player ball at the start
 const PLAYER_RADIUS = 1.0;
-
-// keep this much empty space around the start position
+// Keep this much empty space around the start position
 const START_GAP = 3.0;
-
 // Stop trying after this many random positions
 const MAX_ATTEMPTS = 10000;
 
-// Projection varibales for the temporary camera
-const FOVY = 90.0; // vertical field of view
-const NEAR = 0.1; // near cliping distance
-const FAR = 200.0; // far clipping distance
+// Projection settings for the temporary camera from above, Phase 4 changes it
+// Vertical field of view in degrees
+const FOVY = 60.0;
+// Near and far clipping distance in metres
+const NEAR = 0.1;
+const FAR = 3.0 * SKY_RADIUS;
 
 window.onload = init;
 
 function init() {
-    console.log("init... Start");
     canvas = document.getElementById("gl-canvas");
     
     gl = WebGLUtils.setupWebGL(canvas);
-    if (!gl) {alert("WebGL isn't available"); return;}
+    if (!gl) { alert("WebGL isn't available" ); return;}
 
     resizeCanvas();
     window.onresize = resizeCanvas;
 
-    // configurre WebGL
+    // Configure WebGL
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
 
@@ -87,9 +83,9 @@ function init() {
     gl.useProgram(program);
     aPosition = gl.getAttribLocation(program, "aPosition");
     aNormal = gl.getAttribLocation(program, "aNormal");
-    aTexCoord = gl.getAttribLocation(program, "aTexCoord"); //-1 if the shader does not use this attribute
-    uModelView = gl.getUniformLocation(program,"uModelView");
-    uProjection = gl.getUniformLocation(program,"uProjection");
+    aTexCoord = gl.getAttribLocation(program, "aTexCoord"); //-1 if the shader doesn't use this attribute
+    uModelView = gl.getUniformLocation(program, "uModelView");
+    uProjection = gl.getUniformLocation(program, "uProjection");
 
     // Build meshes and load them into the GPU
     sphereMesh = new Mesh();
@@ -97,10 +93,7 @@ function init() {
     sphereMesh.loadToGPU();
 
     planeMesh = new Mesh();
-
-    //1 texture tile per side
-    planeMesh.makePlane(PLANE_HALF_SIZE, 1.0);
-
+    planeMesh.makePlane(PLANE_HALF_SIZE, 1.0); //1 texture tile per side
     planeMesh.loadToGPU();
 
     // Put the random balls on the plane
@@ -120,10 +113,10 @@ function resizeCanvas() {
 
 // Update the projection and view matrices
 function transform() {
-    matrixProjection = perspective(FOVY, canvas.width/canvas.height, NEAR, FAR);
+    matrixProjection = perspective(FOVY, canvas.width / canvas.height, NEAR, FAR);
 
-    // Place the fixed camera behind and above the sphere
-    matrixView = lookAt(vec3(0.0, 4.0, 4.0), vec3(0.0, 1.5, -6.0), vec3(0.0, 1.0, 0.0));
+    // Temporary camera high above, so we can see all the balls
+    matrixView = lookAt(vec3(0.0, 70.0, 70.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
 }
 
 // Put SPHERE_COUNT balls at random places on the plane, no two of them can touch
@@ -131,19 +124,15 @@ function transform() {
 function placeSpheres() {
     spheres = [];
     var attempts = 0;
-
     while (spheres.length < SPHERE_COUNT && attempts < MAX_ATTEMPTS) {
         attempts++;
         var r = SPHERE_MIN_RADIUS + Math.random() * (SPHERE_MAX_RADIUS - SPHERE_MIN_RADIUS);
         var angle = Math.random() * 2.0 * Math.PI;
-        
         // sqrt() spreads the balls evenly, without it most of them end up near the centre
         var dist = Math.sqrt(Math.random()) * (SKY_RADIUS - PLAY_MARGIN - r);
-
         // Turn the angle and distance into x and z on the plane
         var x = dist * Math.cos(angle);
         var z = dist * Math.sin(angle);
-        
         // y is the radius so the ball sits on the plane, not inside it
         var y = r;
         // New ball to check
@@ -156,7 +145,9 @@ function placeSpheres() {
                 free = false;
             }
         }
-        if (free) spheres.push(candidate);
+        if (free) {
+            spheres.push(candidate);
+        }
     }
     console.log("placeSpheres: " + spheres.length + " spheres after " + attempts + " attempts");
 }
@@ -182,9 +173,14 @@ function render() {
     setModelView(mat4());
     planeMesh.draw();
 
-    // Move the sphere up so it sits on the ground
-    setModelView(translate(0.0, 1.0, 0.0));
+    // Player ball at the start, moved up by its radius so it sits on the ground
+    setModelView(mult(translate(0.0, PLAYER_RADIUS, 0.0), scalem(PLAYER_RADIUS, PLAYER_RADIUS, PLAYER_RADIUS)));
     sphereMesh.draw();
+
+    // Draw all the random balls
+    for (var i = 0; i < spheres.length; i++) {
+        spheres[i].draw();
+    }
 
     requestAnimFrame(render);
 }
