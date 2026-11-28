@@ -1,6 +1,0 @@
-# Course materials and planning files stay on our computers, not in the repository
-*.pdf
-*.zip
-*-plan.html
-katamari-plan*.html
-.DS_Store
