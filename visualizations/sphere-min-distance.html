@@ -1,0 +1,83 @@
+<div id="sphere-min-distance">
+  <h2>When do the balls touch?</h2>
+  <div class="viz-controls">
+    <label class="form-label" for="sphere-center-distance">Distance between centers: <strong id="sphere-distance-value" class="tabular-nums">2.5</strong>
+      <input id="sphere-center-distance" class="form-range" type="range" min="0" max="4.5" step="0.1" value="2.5">
+    </label>
+  </div>
+  <svg id="sphere-distance-picture" class="sphere-picture" viewBox="0 0 500 240" role="img" aria-label="Two balls of radii 1.5 and 1.0, just touching at center distance 2.5">
+    <circle class="ball-a" cx="120" cy="120" r="96"></circle>
+    <circle id="sphere-ball-b" class="ball-b" cx="280" cy="120" r="64"></circle>
+    <line id="sphere-centers-line" class="centers-line" x1="120" y1="120" x2="280" y2="120"></line>
+    <circle class="center-dot" cx="120" cy="120" r="4"></circle>
+    <circle id="sphere-center-b" class="center-dot" cx="280" cy="120" r="4"></circle>
+  </svg>
+  <div class="viz-row sphere-legend">
+    <span><span class="legend-dot ball-a-dot" aria-hidden="true"></span> A radius 1.5</span>
+    <span><span class="legend-dot ball-b-dot" aria-hidden="true"></span> B radius 1.0</span>
+    <span>Minimum center distance: <strong class="tabular-nums">2.5</strong></span>
+  </div>
+  <div id="sphere-distance-status" role="status" aria-live="polite">Just touching</div>
+</div>
+<style>
+  #sphere-min-distance { display: grid; gap: calc(var(--font-size-base) * 0.7); }
+  #sphere-min-distance .sphere-picture { display: block; width: 100%; height: auto; }
+  #sphere-min-distance .ball-a { fill: var(--viz-series-1); fill-opacity: 0.25; stroke: var(--viz-series-1); stroke-width: 2; }
+  #sphere-min-distance .ball-b { fill: var(--viz-series-2); fill-opacity: 0.25; stroke: var(--viz-series-2); stroke-width: 2; }
+  #sphere-min-distance .centers-line { stroke: var(--foreground); stroke-width: 2; stroke-dasharray: 5 4; }
+  #sphere-min-distance .center-dot { fill: var(--foreground); }
+  #sphere-min-distance .sphere-legend { gap: calc(var(--font-size-base) * 0.9); }
+  #sphere-min-distance .sphere-legend span { display: inline-flex; align-items: center; gap: calc(var(--font-size-base) * 0.3); }
+  #sphere-min-distance .legend-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+  #sphere-min-distance .ball-a-dot { background: var(--viz-series-1); }
+  #sphere-min-distance .ball-b-dot { background: var(--viz-series-2); }
+</style>
+<script>
+  (() => {
+    const root = document.getElementById('sphere-min-distance');
+    const slider = root.querySelector('#sphere-center-distance');
+    const value = root.querySelector('#sphere-distance-value');
+    const ballB = root.querySelector('#sphere-ball-b');
+    const centerB = root.querySelector('#sphere-center-b');
+    const line = root.querySelector('#sphere-centers-line');
+    const picture = root.querySelector('#sphere-distance-picture');
+    const status = root.querySelector('#sphere-distance-status');
+    const threshold = 2.5;
+    const centerA = 120;
+    const pixelsPerUnit = 64;
+
+    function update(distance, save) {
+      const d = Math.max(0, Math.min(4.5, Number(distance)));
+      const x = centerA + d * pixelsPerUnit;
+      slider.value = d.toFixed(1);
+      value.textContent = d.toFixed(1);
+      ballB.setAttribute('cx', x);
+      centerB.setAttribute('cx', x);
+      line.setAttribute('x2', x);
+
+      let state;
+      if (Math.abs(d - threshold) < 0.001) {
+        state = 'Just touching';
+      } else if (d < threshold) {
+        state = `Overlapping by ${(threshold - d).toFixed(1)}`;
+      } else {
+        state = `Gap of ${(d - threshold).toFixed(1)}`;
+      }
+      status.textContent = state;
+      picture.setAttribute('aria-label', `Two balls of radii 1.5 and 1.0 at center distance ${d.toFixed(1)}. ${state}.`);
+
+      if (save && window.openai && typeof window.openai.setWidgetState === 'function') {
+        window.openai.setWidgetState({ modelContent: { distance: d }, privateContent: null }).catch(() => {});
+      }
+    }
+
+    const saved = window.openai && window.openai.widgetState && window.openai.widgetState.modelContent;
+    update(saved && Number.isFinite(saved.distance) ? saved.distance : 2.5, false);
+    slider.addEventListener('input', () => update(slider.value, true));
+    window.addEventListener('openai:set_globals', event => {
+      const state = event.detail && event.detail.globals && event.detail.globals.widgetState;
+      const model = state && state.modelContent;
+      if (model && Number.isFinite(model.distance)) update(model.distance, false);
+    });
+  })();
+</script>

@@ -6,13 +6,9 @@
 
 "use strict";
 
-// Sphere class for every ball in the scene
-// All balls use the same unit sphere mesh, only the model matrix changes
+// Sphere class for every ball in the scene.Each ball uses the shared sphere mesh with its own position and size.
 class Sphere {
-    // Centre of the sphere in world coordinates (metres)
     position;
-
-    // Radius of the sphere in metres
     radius;
 
     constructor(position, radius) {
@@ -20,24 +16,17 @@ class Sphere {
         this.radius = radius;
     }
 
-    // Scale the unit sphere to the radius, then move it to the position
     getModelMatrix() {
         return mult(translate(this.position), scalem(this.radius, this.radius, this.radius));
     }
 
-    // Check if this sphere touches another sphere
-    // They overlap when the distance between centres is smaller than the sum of the two radii
     intersects(otherPosition, otherRadius) {
-        // Distance between the two centres
-        var distance = length(subtract(this.position, otherPosition));
-
-        // Sum of the two radii
+        var distance = length(subtract(this.position, otherPosition)); //distance between 2 centers
         var minDistance = this.radius + otherRadius;
         return distance < minDistance;
     }
 
-    // draw the ball using the same sphere mesh
-    // if no matrix is given we use the ball's own matrix
+    // Draw this ball's position and size by default()-if no modelMatrix given
     draw(modelMatrix) {
         if (modelMatrix === undefined) {
             modelMatrix = this.getModelMatrix();

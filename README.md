@@ -27,8 +27,11 @@ Gunel implemented the `Mesh` class in `mesh.js`. She created the methods for gen
 
 28 November
 ---
-Initially, we planned to create a separate branch for each feature and merge it into `main` once completed. While the initial WebGL work was being done on the `sphere-mesh` branch, we continued updating `README.md` on `main`, since the Developer Log is shared across the entire team and covers everyone's daily progress, regardless of which branch they work on. The work on `sphere-mesh` included `katamari-C2.html`, `katamari-C2.js`, and `mesh.js`. We have now successfully merged that branch into `main`. After discussing our workflow, we decided to continue working directly on `main` for now, as our changes are not interfering with one another. We can introduce separate feature branches later if the need arises.
-Link of AI chat where the branch marging and deleting decision was discussed: https://chatgpt.com/share/6b0b010e-e5c8-83ed-89c2-8585015f3b38 
+Initially, we planned to create a separate branch for each feature and merge it into `main` once completed. While the initial WebGL work was being done on the `sphere-mesh` branch, we continued updating `README.md` on `main`, since the Developer Log is shared across the entire team and covers everyone's daily progress, regardless of which branch they work on. The work on `sphere-mesh` included `katamari-C2.html`, `katamari-C2.js`, and `mesh.js`. We have now successfully merged that branch into `main`. After discussing our workflow, we decided to continue working directly on `main` for now, as our changes are not interfering with one another. We can introduce separate feature branches later if the need arises.<br>
+*Link of AI chat where the branch marging and deleting decision was discussed*: https://chatgpt.com/share/6b0b010e-e5c8-83ed-89c2-8585015f3b38 
+
+Khavar created sphere.js for the random balls used by placeSpheres() in the kamatari-C2.js. The constructor(position, radius) saves a ball’s center and size. getModelMatrix() scales the shared unit sphere to that radius and moves it to the saved position. intersects(otherPosition, otherRadius) finds the distance between two centers and compares it with the sum of their radii, so placeSpheres() can reject overlapping balls. draw(modelMatrix) draws one ball using the shared sphereMesh. It uses the ball’s saved position and radius unless a different matrix is provided.<br>
+*Link of AI chat for sphere.js where methods, functions, distance calculations are discussed and partial codes're reviewed*: https://chatgpt.com/share/6b0b1640-2d90-83ed-b3cc-11d226452f01
 
 
 
