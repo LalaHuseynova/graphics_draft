@@ -1,8 +1,9 @@
 /*
-    CSCI 2408 Computer Graphics Fall 2025 
+    CSCI 2408 Computer Graphics Fall 2026
     (c)2026 by Lala Huseynova, Khavar Jabbarli, Gunel Zeynalzada, Fikrat Rustamli (team C2) 
     Submitted in partial fulfillment of the requirements of the course.
 */
+"use strict";
 
 var canvas;
 var gl;
